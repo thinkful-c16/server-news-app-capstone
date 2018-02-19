@@ -43,3 +43,4 @@ Requires the [Heroku CLI client](https://devcenter.heroku.com/articles/heroku-co
 ### Deploying to Heroku
 
 * Push your code to Heroku: `git push heroku master`
+# server-news-app-capstone

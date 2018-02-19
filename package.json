@@ -15,15 +15,15 @@
   "dependencies": {
     "cors": "^2.8.4",
     "express": "^4.15.4",
-    "knex": "^0.13.0",
-    "mongoose": "^4.11.12",
+    "knex": "^0.14.4",
+    "mongoose": "^5.0.6",
     "morgan": "^1.8.2",
     "pg": "^7.3.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
-    "mocha": "^3.5.3",
+    "mocha": "^5.0.1",
     "nodemon": "^1.12.1",
     "nyc": "^11.2.1"
   }
