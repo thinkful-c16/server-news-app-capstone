@@ -3,18 +3,19 @@ const { Strategy: FacebookStrategy } = require('passport-facebook');
 const { User } = require('../user/models');
 const { JWT_SECRET } = require('../config');
 const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET} = require('../config');
+//remember to change localhost to the client base url
 
 const facebookStrategy = new FacebookStrategy({
   clientId: FACEBOOK_APP_ID,
   clientSecret: FACEBOOK_APP_SECRET,
   callbackURL: 'http://localhost:3000/auth/facebook/callback',
-  profileFields: ['id', 'email', 'name']
+  profileFields: ['id', 'email', 'name', 'displayName']
 },
 function(accessToken, refreshToken, profile, done) {
   console.log('User profile', profile);
   User.findOne({ 'facebook.id': profile.id }, function(err, user) {
     if (err) {
-      return done (err);
+      return done(err);
     }
     if (user) {
       return done(null, user);
@@ -36,3 +37,5 @@ function(accessToken, refreshToken, profile, done) {
     }
   });
 });
+
+//grab the user from payload.user for generating jwt token
