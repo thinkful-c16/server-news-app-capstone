@@ -13,11 +13,13 @@
   "author": "Joe Turner <jturner@thinkful.com>",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "cors": "^2.8.4",
     "express": "^4.15.4",
     "knex": "^0.14.4",
     "mongoose": "^5.0.6",
     "morgan": "^1.8.2",
+    "newsapi": "^2.2.0",
     "passport-facebook": "^2.1.1",
     "pg": "^7.3.0"
   },
