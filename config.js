@@ -10,7 +10,8 @@ module.exports = {
         'mongodb://localhost/thinkful-backend-test',
   FACEBOOK_APP_ID: 1989958031254651,
   FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
-  JWT_SECRET: process.env.JWT_SECRET
+  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_EXPIRY: process.env.JWT_EXPIRY || '7d'
   // DATABASE_URL:
   //     process.env.DATABASE_URL || 'postgres://localhost/thinkful-backend',
   // TEST_DATABASE_URL:
