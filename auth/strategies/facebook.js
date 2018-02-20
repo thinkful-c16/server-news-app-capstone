@@ -1,6 +1,6 @@
 'use strict';
 const { Strategy: FacebookStrategy } = require('passport-facebook');
-const { User } = require('../user/models');
+const { User } = require('../user/model');
 const { JWT_SECRET } = require('../config');
 const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET} = require('../config');
 //remember to change localhost to the client base url

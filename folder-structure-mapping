@@ -1,0 +1,18 @@
+- auth
+----- index.js <!-- export all the routes and strategies --!>
+----- strategies <!-- configure the strategies (facebook, google, local) --!>
+------- google.js <!-- google strategy --!>
+------- facebook.js <!-- Facebook strategy --!>
+------- local.js <!-- local strategy --!>
+- user
+---- index.js
+---- models.js <!-- our user model --!>
+---- router.js
+- config
+------ index.js      <!-- will export all client secret keys (facebook, twitter, google, JWT) -->
+------ google.js <-- keys for google auth -->
+------ facebook.js <-- keys for facebook auth -->
+------ local.js <--- keys for local auth --->
+------ mongo-database.js  <!-- will hold our database connection settings -->
+- package.json      <!-- handle our npm packages -->
+- server.js         <!-- setup our application -->
