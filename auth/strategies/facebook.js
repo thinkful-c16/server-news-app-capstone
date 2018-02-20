@@ -12,6 +12,7 @@ const facebookStrategy = new FacebookStrategy({
   profileFields: ['id', 'email', 'name', 'displayName']
 },
 function(accessToken, refreshToken, profile, done) {
+  //translate the facebook profile into a custom user object
   console.log('User profile', profile);
   User.findOne({ 'facebook.id': profile.id }, function(err, user) {
     if (err) {
