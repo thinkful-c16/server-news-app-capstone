@@ -8,7 +8,7 @@ const facebookStrategy = new FacebookStrategy({
   clientId: FACEBOOK_APP_ID,
   clientSecret: FACEBOOK_APP_SECRET,
   callbackURL: 'http://localhost:3000/auth/facebook/callback',
-  profileFields: ['id', 'email', 'displayName.familyName']
+  profileFields: ['id', 'email', 'name']
 },
 function(accessToken, refreshToken, profile, done) {
   console.log('User profile', profile);
@@ -23,7 +23,13 @@ function(accessToken, refreshToken, profile, done) {
       newUser.facebook.id = profile.id; //set user's fb id
       newUser.facebook.token = accessToken;
       newUser.facebook.email = profile.emails[0].value;
-      newUser.facebook.name = profile.name;
+      newUser.facebook.name = profile.displayName;
+      newUser.save(function(err) {
+        if (err) {
+          throw err;
+        }
+        return done(null, newUser);
+      })
     }
   })
 })
