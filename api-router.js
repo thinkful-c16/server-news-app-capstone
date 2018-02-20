@@ -6,6 +6,7 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const JSONParser = bodyParser.json();
 
+const config = require('./config');
 const NewsAPI = require('newsapi');
 //News API key
 const newsapi = new NewsAPI('df99d64881394091ac31bd9919396478');
