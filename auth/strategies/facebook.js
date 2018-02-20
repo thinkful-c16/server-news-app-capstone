@@ -22,6 +22,9 @@ function(accessToken, refreshToken, profile, done) {
       let newUser = new User();
       newUser.facebook.id = profile.id; //set user's fb id
       newUser.facebook.token = accessToken;
+      newUser.userName = profile.displayName;
+      newUser.name = `${profile.name.familyName} ${profile.name.givenName}`;
+      newUser.confirmed = true;
       newUser.facebook.email = profile.emails[0].value;
       newUser.facebook.name = profile.displayName;
       newUser.save(function(err) {
@@ -29,7 +32,7 @@ function(accessToken, refreshToken, profile, done) {
           throw err;
         }
         return done(null, newUser);
-      })
+      });
     }
-  })
-})
+  });
+});
