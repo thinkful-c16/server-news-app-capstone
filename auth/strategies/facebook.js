@@ -39,3 +39,5 @@ function(accessToken, refreshToken, profile, done) {
 });
 
 //grab the user from payload.user for generating jwt token
+
+module.exports = { facebookStrategy };
