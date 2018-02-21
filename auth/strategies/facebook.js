@@ -24,7 +24,7 @@ function(accessToken, refreshToken, profile, done) {
       let newUser = new User();
       newUser.facebook.id = profile.id; //set user's fb id
       newUser.facebook.token = accessToken;
-      newUser.userName = profile.displayName;
+      // newUser.userName = profile.displayName;
       newUser.name = `${profile.name.familyName} ${profile.name.givenName}`;
       newUser.confirmed = true;
       newUser.facebook.email = profile.emails[0].value;
