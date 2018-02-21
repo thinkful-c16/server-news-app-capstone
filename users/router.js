@@ -79,6 +79,7 @@ router.post('/', jsonParser, (req, res ) => {
       return res.status(201).location(`/api/users/${user.id}`).json(user.apiRepr());
     })
     .catch(err => {
+      console.log('Error', err);
       if (err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       }

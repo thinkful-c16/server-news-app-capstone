@@ -16,6 +16,8 @@ const app = express();
 
 const { router: authRouter, localStrategy, jwtStrategy, facebookStrategy } = require('./auth');
 const { router: usersRouter } = require('./users');
+const jwtAuth = passport.authenticate('jwt', { session: false });
+
 
 
 app.use(
@@ -36,10 +38,10 @@ passport.use(facebookStrategy);
 
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
-app.get('/api/dashboard', authRouter);
+// app.get('/api/dashboard', authRouter);
 
 
-app.get('/api/dashboard', (req, res) => {		
+app.get('/api/dashboard', jwtAuth, (req, res) => {		
   return res.json({data: 'hooray!'});
 });
 app.use('/', apiRouter);

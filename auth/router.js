@@ -6,9 +6,11 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET, JWT_EXPIRY } = require('../config');
 const router = express.Router();
 
+router.use(bodyParser.json());
+
 const createAuthToken = function(user) {
   return jwt.sign({user}, JWT_SECRET, {
-    subject: user.username,
+    subject: user.email,
     expiresIn: JWT_EXPIRY,
     algorithm: 'HS256'
   });
@@ -27,8 +29,6 @@ router.post('/refresh', jwtAuth, (req, res) => {
   const authToken = createAuthToken(req.user);
   res.json({authToken});
 });
-
-router.use(bodyParser.json());
 
 router.get('/facebook', passport.authenticate('facebook'));
 //the callback is where we store user details and redirect users
