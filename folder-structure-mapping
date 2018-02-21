@@ -1,0 +1,13 @@
+- auth
+----- index.js <!-- export all the routes and strategies --!>
+----- strategies <!-- configure the strategies (facebook, google, local) --!>
+------- google.js <!-- google strategy --!>
+------- facebook.js <!-- Facebook strategy --!>
+------- local.js <!-- local strategy --!>
+- user
+---- index.js
+---- models.js <!-- our user model --!>
+---- router.js
+- config.js
+- package.json      <!-- handle our npm packages -->
+- server.js         <!-- setup our application -->

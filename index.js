@@ -1,8 +1,10 @@
 'use strict';
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const passport = require('passport');
 
 const {PORT, CLIENT_ORIGIN} = require('./config');
 const {dbConnect} = require('./db-mongoose');
@@ -11,6 +13,9 @@ const {dbConnect} = require('./db-mongoose');
 const apiRouter = require('./api-router');
 
 const app = express();
+
+const { router: authRouter, localStrategy, jwtStrategy, facebookStrategy } = require('./auth');
+
 
 app.use(
   morgan(process.env.NODE_ENV === 'production' ? 'common' : 'dev', {
@@ -24,6 +29,17 @@ app.use(
   })
 );
 
+passport.use(localStrategy);
+passport.use(jwtStrategy);
+passport.use(facebookStrategy);
+
+app.use('/api/auth/', authRouter);
+app.get('/api/dashboard', authRouter);
+
+
+app.get('/api/dashboard', (req, res) => {		
+  return res.json({data: 'hooray!'});
+});
 app.use('/', apiRouter);
 
 function runServer(port = PORT) {
