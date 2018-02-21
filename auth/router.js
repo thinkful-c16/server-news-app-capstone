@@ -6,6 +6,7 @@ const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_TOKEN } = require('../config');
 const router = express.Router();
+const { User } = require('../users');
 
 router.use(bodyParser.json());
 
@@ -36,8 +37,30 @@ router.post('/facebook', (req, res) => {
   const userToken = req.body.token;
   fetch(`https://graph.facebook.com/debug_token?input_token=${userToken}&access_token=${FACEBOOK_APP_TOKEN}`)
     .then(response => response.json())
-    .then(data => console.log(data));
-  res.json(req.body);
+    .then(data => {
+      const { user_id } = data;
+      console.log(user_id);
+      User.findOne({'facebook.id': user_id}, function(err, user) {
+        if (err) {
+          return err;
+        }
+        if (user) {
+          const authToken = createAuthToken(user.apiRepr());
+          res.json({authToken});
+        } else {
+          //need to query the profile for name and email, save the fb token to the db
+          fetch(`https://graph.facebook.com/${user_id}`)
+            .then(response => response.json())
+            .then(data => console.log(data));
+
+        } 
+      });
+
+    });
+  //check to see if fb id exists for a user in our database
+  //if the user doesnt exist create the users
+  //create the auth token and send back the auth token
+  // res.json(req.body);
 });
 
 module.exports = { router };
