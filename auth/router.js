@@ -2,8 +2,9 @@
 const express = require('express');
 const passport = require('passport');
 const bodyParser = require('body-parser');
+const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET, JWT_EXPIRY } = require('../config');
+const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_TOKEN } = require('../config');
 const router = express.Router();
 
 router.use(bodyParser.json());
@@ -30,18 +31,13 @@ router.post('/refresh', jwtAuth, (req, res) => {
   res.json({authToken});
 });
 
-router.get('/facebook', passport.authenticate('facebook'));
-//the callback is where we store user details and redirect users
-router.get('/facebook/callback', passport.authenticate('facebook', {
-  session: false,
-  failureRedirect: '/login'
-}), (req, res) => {
-  res.redirect('/');
-  console.log('req.user in fb callback', req.user);
-  // res.json({
-  //   token: req.user.accessToken
-  // });
-}
-);
+router.post('/facebook', (req, res) => {
+  //check to see if token is valid
+  const userToken = req.body.token;
+  fetch(`https://graph.facebook.com/debug_token?input_token=${userToken}&access_token=${FACEBOOK_APP_TOKEN}`)
+    .then(response => response.json())
+    .then(data => console.log(data));
+  res.json(req.body);
+});
 
 module.exports = { router };
