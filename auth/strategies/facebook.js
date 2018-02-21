@@ -1,12 +1,12 @@
 'use strict';
 const { Strategy: FacebookStrategy } = require('passport-facebook');
-const { User } = require('../user/model');
-const { JWT_SECRET } = require('../config');
-const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET} = require('../config');
+const { User } = require('../../users/model');
+// const { JWT_SECRET } = require('../config');
+const { FACEBOOK_APP_ID, FACEBOOK_APP_SECRET} = require('../../config');
 //remember to change localhost to the client base url
 
 const facebookStrategy = new FacebookStrategy({
-  clientId: FACEBOOK_APP_ID,
+  clientID: FACEBOOK_APP_ID,
   clientSecret: FACEBOOK_APP_SECRET,
   callbackURL: 'http://localhost:3000/auth/facebook/callback',
   profileFields: ['id', 'email', 'name', 'displayName']
