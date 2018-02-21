@@ -9,7 +9,6 @@ const router = express.Router();
 router.use(bodyParser.json());
 
 const createAuthToken = function(user) {
-  console.log('USER DOT USERNAME', user.email)
   return jwt.sign({user}, JWT_SECRET, {
     subject: user.email,
     expiresIn: JWT_EXPIRY,
