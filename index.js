@@ -15,6 +15,7 @@ const apiRouter = require('./api-router');
 const app = express();
 
 const { router: authRouter, localStrategy, jwtStrategy, facebookStrategy } = require('./auth');
+const { router: usersRouter } = require('./users');
 
 
 app.use(
@@ -33,7 +34,8 @@ passport.use(localStrategy);
 passport.use(jwtStrategy);
 passport.use(facebookStrategy);
 
-app.use('/api/auth/', authRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/auth', authRouter);
 app.get('/api/dashboard', authRouter);
 
 

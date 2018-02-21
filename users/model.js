@@ -56,9 +56,8 @@ const UserSchema = new mongoose.Schema({
 
 UserSchema.methods.apiRepr = function() {
   return {
-    username: this.userName || '',
-    firstName: this.firstName || '',
-    lastName: this.lastName || ''
+    firstName: this.name.firstName || '',
+    lastName: this.name.lastName || ''
   };
 };
   
