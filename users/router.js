@@ -54,12 +54,10 @@ router.post('/', jsonParser, (req, res ) => {
     });
   }
   let { password, email, name } = req.body;
-  User.find({email}).then(result => console.log(result));
 
   return User.find({email})
     .count()
     .then(count => {
-      console.log('Count', count);
       if (count > 0) {
         return Promise.reject({
           code: 422,
@@ -78,11 +76,9 @@ router.post('/', jsonParser, (req, res ) => {
       });
     })
     .then(user => {
-      console.log('user', user);
       return res.status(201).location(`/api/users/${user.id}`).json(user.apiRepr());
     })
     .catch(err => {
-      console.log('Error', err);
       if (err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       }
