@@ -53,12 +53,13 @@ router.post('/', jsonParser, (req, res ) => {
       location: tooSmallField || tooLargeField
     });
   }
-  console.log('Req body', req.body)
   let { password, email, name } = req.body;
-  console.log('Name object', name);
+  User.find({email}).then(result => console.log(result));
+
   return User.find({email})
     .count()
     .then(count => {
+      console.log('Count', count);
       if (count > 0) {
         return Promise.reject({
           code: 422,
@@ -70,7 +71,7 @@ router.post('/', jsonParser, (req, res ) => {
       return User.hashPassword(password);
     })
     .then(hash => {
-      return new User({
+      return User.create({
         name,
         email,
         password: hash
