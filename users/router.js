@@ -17,7 +17,8 @@ router.post('/', jsonParser, (req, res ) => {
       location: missingField
     });
   }
-  const stringFields = ['email', 'password', name.firstName, name.lastName ];
+  const { firstName, lastName } = req.body.name;
+  const stringFields = ['email', 'password', firstName, lastName ];
   const nonStringField = stringFields.find(field => field in req.body && typeof req.body[field] !== 'string');
   if (nonStringField) {
     return res.status(422).json({
@@ -52,8 +53,9 @@ router.post('/', jsonParser, (req, res ) => {
       location: tooSmallField || tooLargeField
     });
   }
+  console.log('Req body', req.body)
   let { password, email, name } = req.body;
-
+  console.log('Name object', name);
   return User.find({email})
     .count()
     .then(count => {
@@ -69,14 +71,17 @@ router.post('/', jsonParser, (req, res ) => {
     })
     .then(hash => {
       return new User({
+        name,
         email,
         password: hash
       });
     })
     .then(user => {
+      console.log('user', user);
       return res.status(201).location(`/api/users/${user.id}`).json(user.apiRepr());
     })
     .catch(err => {
+      console.log('Error', err);
       if (err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       }
