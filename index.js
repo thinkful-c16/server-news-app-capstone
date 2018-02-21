@@ -11,7 +11,7 @@ const {dbConnect} = require('./db-mongoose');
 
 const app = express();
 
-const { router: authRouter, localStrategy, jwtStrategy } = require('./auth');
+const { router: authRouter, localStrategy, jwtStrategy, facebookStrategy } = require('./auth');
 
 
 app.use(
@@ -28,6 +28,15 @@ app.use(
 
 passport.use(localStrategy);
 passport.use(jwtStrategy);
+passport.use(facebookStrategy);
+
+app.use('/api/auth/', authRouter);
+app.get('/api/dashboard', authRouter);
+
+
+app.get('/api/dashboard', (req, res) => {		
+  return res.json({data: 'hooray!'});
+});
 
 function runServer(port = PORT) {
   const server = app

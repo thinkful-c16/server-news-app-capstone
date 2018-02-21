@@ -30,17 +30,17 @@ router.post('/refresh', jwtAuth, (req, res) => {
 
 router.use(bodyParser.json());
 
-router.get('/auth/facebook', passport.authenticate('facebook'));
+router.get('/facebook', passport.authenticate('facebook'));
 //the callback is where we store user details and redirect users
-router.get('/auth/facebook/callback', passport.authenticate('facebook', {
+router.get('/facebook/callback', passport.authenticate('facebook', {
   session: false,
-  successRedirect: '/',
   failureRedirect: '/login'
 }), (req, res) => {
+  res.redirect('/');
   console.log('req.user in fb callback', req.user);
-  res.json({
-    token: req.user.accessToken
-  });
+  // res.json({
+  //   token: req.user.accessToken
+  // });
 }
 );
 

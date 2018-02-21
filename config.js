@@ -4,10 +4,10 @@ module.exports = {
   PORT: process.env.PORT || 8080,
   CLIENT_ORIGIN: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
   DATABASE_URL:
-        process.env.DATABASE_URL || 'mongodb://localhost/thinkful-backend',
+        process.env.DATABASE_URL || 'mongodb://localhost/newsapp-backend',
   TEST_DATABASE_URL:
         process.env.TEST_DATABASE_URL ||
-        'mongodb://localhost/thinkful-backend-test',
+        'mongodb://localhost/newsapp-backend-test',
   FACEBOOK_APP_ID: 1989958031254651,
   FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
   JWT_SECRET: process.env.JWT_SECRET,
