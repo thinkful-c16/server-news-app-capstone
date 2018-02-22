@@ -35,7 +35,7 @@ router.post('/refresh', jwtAuth, (req, res) => {
 router.post('/facebook', (req, res) => {
   let user;
   const userToken = req.body.token;
-  console.log('user token', userToken);
+  console.log('user token from client side >>>>', userToken);
   fetch(`https://graph.facebook.com/debug_token?input_token=${userToken}&access_token=${FACEBOOK_APP_TOKEN}`)
     .then(response => response.json())
     .then(data => {
@@ -46,7 +46,7 @@ router.post('/facebook', (req, res) => {
           User.findOne({$or: [{'email': userData.email}, {'facebook.id': user_id}]})
             .then(_user => {
               user = _user;
-              console.log('user after query', user);
+              console.log('user after facebook query >>>', user);
               if (!user) {
                 const { first_name, last_name, email } = userData;
                 let name = {
@@ -60,23 +60,25 @@ router.post('/facebook', (req, res) => {
                   'facebook.token': userToken
                 })
                   .then(user => {
-                    console.log('User create', user.apiRepr());
+                    console.log('Newly created user >>>>>', user);
                     const authToken = createAuthToken(user.apiRepr());
+                    console.log('Our auth token after creating user>>>>>', authToken);
                     return res.status(201).location(`/api/auth/${user.id}`).json({authToken});
                   });
               }
-              if(user) {
-                user.email ? user.facebook.id = user_id : user.email = userData.email;
+              else if (user) {
+                console.log('Else if user already exists >>>>>', user);
+                user.facebook.id = user_id;
                 user.facebook.token = userToken;
-                console.log('user after assigning keys', user);
+                !user.email ? user.email = userData.email : null;
+                console.log('existing user after assigning keys >>>>', user);
+                user.save();   
+                const authToken = createAuthToken(user.apiRepr());
+                console.log('our auth token after existing user verified', authToken);
+                return res.json({authToken});    
               }
-              return user.save();      
-            })
-            .then(user => {
-              const authToken = createAuthToken(user.apiRepr());
-              console.log('user api repr', user.apiRepr());
-              console.log('our auth token', authToken);
-              return res.json({authToken}); 
+            }).catch(err => {
+              res.status(err.code).json({message:'Uh oh, something went wrong'});
             });
         });
     });
