@@ -92,16 +92,14 @@ router.post('/google', (req, res) => {
   fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${userToken}`)
     .then(response => response.json())
     .then(data => {
-      const { sub, email } = data
+      const { sub, email, given_name, family_name } = data
       User.findOne({ $or: [{'email': email}, {'google.id': sub}] })
         .then(_user => {
           user = _user;
           if(!user){
-            const { firstName, lastName } = user.name;
-            const { email } = user;
             let name = {
-              firstName: firstName,
-              lastName: lastName
+              firstName: data.given_name,
+              lastName: data.family_name
             }
             return User.create({
               name,
