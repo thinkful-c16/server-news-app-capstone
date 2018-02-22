@@ -4,8 +4,9 @@ const passport = require('passport');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_TOKEN } = require('../config');
+const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_TOKEN, GOOGLE_CLIENT_ID } = require('../config');
 const router = express.Router();
+const GoogleAuth = require('google-auth-library');
 const { User } = require('../users');
 
 router.use(bodyParser.json());
@@ -82,6 +83,48 @@ router.post('/facebook', (req, res) => {
             });
         });
     });
+});
+
+
+router.post('/google', (req, res) => {
+  let user;
+  const userToken = req.body.token;
+  fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${userToken}`)
+    .then(response => response.json())
+    .then(data => {
+      const { sub, email } = data
+      User.findOne({ $or: [{'email': email}, {'google.id': sub}] })
+        .then(_user => {
+          user = _user;
+          if(!user){
+            const { firstName, lastName } = user.name;
+            const { email } = user;
+            let name = {
+              firstName: firstName,
+              lastName: lastName
+            }
+            return User.create({
+              name,
+              email,
+              'google.id': sub,
+              'google.token': userToken
+            })
+            .then(user => {
+              const authToken = createAuthToken(user.apiRepr());
+              return res.status(201).location(`/api/auth/${user.id}`.json({authToken}))
+            })
+          }
+          if(user){
+            user.email ? user.google.id = sub : user.email = user.email;
+            user.google.token = userToken;
+          }
+          return user.save();
+        })
+        .then(user => {
+          const authToken = createAuthToken(user.apiRepr());
+          return res.json({authToken}); 
+        })
+    })
 });
 
 module.exports = { router };
