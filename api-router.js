@@ -45,9 +45,12 @@ router.post('/api/catSearch', JSONParser, (req, res) => {
 //get articles based on user search query
 router.post('/api/qSearch', JSONParser, (req, res) => {
   const searchTerm = req.body.searchTerm;
+  console.log('searchTerm:', searchTerm);
   newsapi.v2.everything({
     q: searchTerm,
-    language: 'en'  
+    sortBy: 'popularity',
+    language: 'en'
+    
   })
     .then(articles => {
       res.json(articles);
