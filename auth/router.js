@@ -66,7 +66,11 @@ router.post('/facebook', (req, res) => {
                   'facebook.id': user_id,
                   'facebook.token': userToken
                 })
-                  .then(user => console.log(user));
+                  .then(user => {
+                    console.log('User create', user.apiRepr());
+                    const authToken = createAuthToken(user.apiRepr());
+                    return res.status(201).location(`/api/auth/${user.id}`).json({authToken});
+                  });
               }
               if(user) {
                 user.email ? user.facebook.id = user_id : user.email = userData.email;
