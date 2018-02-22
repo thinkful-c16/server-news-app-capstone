@@ -51,10 +51,8 @@ router.post('/google', (req, res) => {
   const userToken = req.body.token;
   fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${userToken}`)
     .then(response => response.json())
-    .then(data => console.log(data.email, data.name, data.given_name, data.family_name, data.picture))
-    .then(
-      User.findOne({''})
-    )
+    .then(data => console.log(data))
+//additional code 
   res.json(req.body);
 });
 
