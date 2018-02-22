@@ -54,12 +54,10 @@ router.post('/google', (req, res) => {
   fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${userToken}`)
     .then(response => response.json())
     .then(data => {
-      // console.log(data)
       const { sub, email } = data
       User.findOne({ $or: [{'email': email}, {'google.id': sub}] })
         .then(_user => {
           user = _user;
-          // console.log('user after findOne', user)
           if(!user){
             const { firstName, lastName } = user.name;
             const { email } = user;
@@ -74,7 +72,6 @@ router.post('/google', (req, res) => {
               'google.token': userToken
             })
             .then(user => {
-              console.log('User create', user.apiRepr())
               const authToken = createAuthToken(user.apiRepr());
               return res.status(201).location(`/api/auth/${user.id}`.json({authToken}))
             })
@@ -82,7 +79,6 @@ router.post('/google', (req, res) => {
           if(user){
             user.email ? user.google.id = sub : user.email = user.email;
             user.google.token = userToken;
-            console.log('user after assigning keys', user);
           }
           return user.save();
         })
@@ -91,9 +87,6 @@ router.post('/google', (req, res) => {
           return res.json({authToken}); 
         })
     })
-//additional code 
-  // res.json(req.body);
-  // res.send('Okay')
 });
 
 module.exports = { router };
