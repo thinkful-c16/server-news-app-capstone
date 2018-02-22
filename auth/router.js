@@ -50,10 +50,10 @@ router.post('/facebook', (req, res) => {
         .then(userData => {
           // console.log('User data', userData)
           // User.find({'facebook.id': user_id} || {'email': userData.email})
-          User.findOne({'email': userData.email})
+          User.findOne({$or: [{'email': userData.email}, {'facebook.id': user_id}]})
             .then(_user => {
               user = _user;
-              console.log('user after query', user)
+              console.log('user after query', user);
               if (!user) {
                 const { first_name, last_name, email } = userData;
                 let name = {
@@ -71,13 +71,17 @@ router.post('/facebook', (req, res) => {
               if(user) {
                 user.email ? user.facebook.id = user_id : user.email = userData.email;
                 user.facebook.token = userToken;
-                console.log('user after assigning keys', user)
+                console.log('user after assigning keys', user);
               }
+              return user.save();      
+            })
+            .then(user => {
+              const authToken = createAuthToken(user.apiRepr());
+              console.log('user api repr', user.apiRepr());
+              console.log('our auth token', authToken);
+              return res.json({authToken}); 
             });
-          
         });
-      const authToken = createAuthToken(req.user.apiRepr());
-      res.json({authToken});
     });
 });
 
