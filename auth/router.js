@@ -32,12 +32,7 @@ router.post('/refresh', jwtAuth, (req, res) => {
   res.json({authToken});
 });
 
-//1.check to see if email matches an existing user, if it does, save the facebook information in that user's profile, return the auth token to the client
-//2.check to see if facebook_id matches existing id, return auth token to client
-//3.if no local user exists, create one, return auth token to client
-//4. save fb token to facebook.token
 router.post('/facebook', (req, res) => {
-  //check to see if token is valid
   let user;
   const userToken = req.body.token;
   console.log('user token', userToken);
@@ -48,8 +43,6 @@ router.post('/facebook', (req, res) => {
       fetch(`https://graph.facebook.com/${user_id}?access_token=${FACEBOOK_APP_TOKEN}&fields=id,first_name,last_name,email`)
         .then(response => response.json())
         .then(userData => {
-          // console.log('User data', userData)
-          // User.find({'facebook.id': user_id} || {'email': userData.email})
           User.findOne({$or: [{'email': userData.email}, {'facebook.id': user_id}]})
             .then(_user => {
               user = _user;
