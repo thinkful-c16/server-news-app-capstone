@@ -41,7 +41,17 @@ const UserSchema = new mongoose.Schema({
     userName: { type: String } 
   }],
   usersFollowingCount: { type: Number },
-  usersFollowedCount: { type: Number }
+  usersFollowedCount: { type: Number },
+  collections: {
+    collectionTitle: { type: String },
+    collectionArticles: [{
+      title: { type: String },
+      author: { type: String },
+      description: { type: String },
+      image: { type: String},
+      url: { type: String }
+    }]
+  }
     
   //anything else we can think of to include
 });
