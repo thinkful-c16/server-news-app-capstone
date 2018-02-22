@@ -2,9 +2,11 @@
 const express = require('express');
 const passport = require('passport');
 const bodyParser = require('body-parser');
+const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
-const { JWT_SECRET, JWT_EXPIRY } = require('../config');
+const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_TOKEN, GOOGLE_CLIENT_ID } = require('../config');
 const router = express.Router();
+const GoogleAuth = require('google-auth-library');
 
 router.use(bodyParser.json());
 
@@ -43,5 +45,17 @@ router.get('/facebook/callback', passport.authenticate('facebook', {
   // });
 }
 );
+
+
+router.post('/google', (req, res) => {
+  const userToken = req.body.token;
+  fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${userToken}`)
+    .then(response => response.json())
+    .then(data => console.log(data.email, data.name, data.given_name, data.family_name, data.picture))
+    .then(
+      User.findOne({''})
+    )
+  res.json(req.body);
+});
 
 module.exports = { router };
