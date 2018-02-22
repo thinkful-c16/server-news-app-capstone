@@ -32,51 +32,53 @@ router.post('/refresh', jwtAuth, (req, res) => {
   res.json({authToken});
 });
 
+//1.check to see if email matches an existing user, if it does, save the facebook information in that user's profile, return the auth token to the client
+//2.check to see if facebook_id matches existing id, return auth token to client
+//3.if no local user exists, create one, return auth token to client
+//4. save fb token to facebook.token
 router.post('/facebook', (req, res) => {
   //check to see if token is valid
+  let user;
   const userToken = req.body.token;
   console.log('user token', userToken);
   fetch(`https://graph.facebook.com/debug_token?input_token=${userToken}&access_token=${FACEBOOK_APP_TOKEN}`)
     .then(response => response.json())
     .then(data => {
-      // console.log('Data', data.data)
       const { user_id } = data.data;
-      console.log('User id', user_id);
       fetch(`https://graph.facebook.com/${user_id}?access_token=${FACEBOOK_APP_TOKEN}&fields=id,first_name,last_name,email`)
         .then(response => response.json())
-        .then(userData => console.log('User data', userData));
+        .then(userData => {
+          // console.log('User data', userData)
+          // User.find({'facebook.id': user_id} || {'email': userData.email})
+          User.findOne({'email': userData.email})
+            .then(_user => {
+              user = _user;
+              console.log('user after query', user)
+              if (!user) {
+                const { first_name, last_name, email } = userData;
+                let name = {
+                  firstName: first_name,
+                  lastName: last_name
+                };
+                return User.create({
+                  name,
+                  email,
+                  'facebook.id': user_id,
+                  'facebook.token': userToken
+                })
+                  .then(user => console.log(user));
+              }
+              if(user) {
+                user.email ? user.facebook.id = user_id : user.email = userData.email;
+                user.facebook.token = userToken;
+                console.log('user after assigning keys', user)
+              }
+            });
+          
+        });
+      const authToken = createAuthToken(req.user.apiRepr());
+      res.json({authToken});
     });
-  res.send('ok');
-  // console.log(user_id);
-  // let user;
-  // return User.findOne({'facebook.id': user_id})
-  //   .then(_user => {
-  //     user = _user;
-  //     if(!user) {
-  //       User.create({
-  //         name,
-  //         email
-  //       });
-  //     }
-  //     .then(user => {
-  //       const authToken = createAuthToken(user.apiRepr());
-  //       return res.status(201).json({authToken})
-  //     })
-
-
-  //need to query the profile for name and email, save the fb token to the db
-  // fetch(`https://graph.facebook.com/${user_id}`)
-  //   .then(response => response.json())
-  //   .then(data => console.log(data));
-        
-
-        
-    
-
-  //check to see if fb id exists for a user in our database
-  //if the user doesnt exist create the users
-  //create the auth token and send back the auth token
-  // res.json(req.body);
 });
 
 module.exports = { router };
