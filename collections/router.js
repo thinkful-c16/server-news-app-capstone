@@ -6,10 +6,20 @@ const { User } = require('../users/model');
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const passport = require('passport');
+const { col1, col2, } = require('./data');
+
+router.use(jsonParser);
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
-router.post('/:collection', jwtAuth, (req, res) => {
+//post an article to a specific collection via id
+//
+
+router.post('/', jwtAuth, (req, res) => {
+  const user = req.user;
+  console.log(user);
+  User.findById(user.id)
+  .then(user => console.log(user));
   res.send('ok');
 });
 
