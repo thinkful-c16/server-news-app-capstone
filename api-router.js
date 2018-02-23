@@ -28,9 +28,27 @@ router.get('/api/top20', (req, res) => {
 //get top headlines based on user search category
 //business, entertainment, general, health, science, sports, technology
 router.post('/api/catSearch', JSONParser, (req, res) => {
-  const category = req.body.category;
+  const searchCategory = req.body.searchCategory;
   newsapi.v2.topHeadlines({
-    category,
+    category: searchCategory,
+    language: 'en',
+    country: 'us' 
+  })
+    .then(headlines => {
+      res.json(headlines);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+});
+
+// get top headlines based on user search and category
+router.post('/api/qCatSearch', JSONParser, (req, res) => {
+  const searchCategory = req.body.searchCategory;
+  const searchTerm = req.body.searchTerm;
+  newsapi.v2.topHeadlines({
+    q: searchTerm,
+    category: searchCategory,
     language: 'en',
     country: 'us' 
   })
