@@ -42,16 +42,18 @@ const UserSchema = new mongoose.Schema({
   }],
   usersFollowingCount: { type: Number },
   usersFollowedCount: { type: Number },
-  collections: {
+  collections: [{
+    _id: mongoose.Schema.Types.ObjectId,
     collectionTitle: { type: String },
     collectionArticles: [{
+      _id: mongoose.Schema.Types.ObjectId,      
       title: { type: String },
       author: { type: String },
       description: { type: String },
       image: { type: String},
       url: { type: String }
     }]
-  }
+  }]
     
   //anything else we can think of to include
 });
