@@ -9,7 +9,8 @@ let col1 = {
 let col2 = {
   collectionTitle: 'Some other collection',
   collectionArticles: []
-}
-;
+};
+
+
 
 module.exports = { col1, col2 };
