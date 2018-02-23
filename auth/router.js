@@ -6,7 +6,7 @@ const fetch = require('node-fetch');
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_TOKEN, GOOGLE_CLIENT_ID } = require('../config');
 const router = express.Router();
-const GoogleAuth = require('google-auth-library');
+// const GoogleAuth = require('google-auth-library');
 const { User } = require('../users');
 
 router.use(bodyParser.json());
