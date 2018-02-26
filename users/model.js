@@ -43,10 +43,8 @@ const UserSchema = new mongoose.Schema({
   usersFollowingCount: { type: Number },
   usersFollowedCount: { type: Number },
   collections: [{
-    id: mongoose.Schema.Types.ObjectId,        
     collectionTitle: { type: String },
     collectionArticles: [{
-      id: mongoose.Schema.Types.ObjectId,
       title: { type: String },
       author: { type: String },
       description: { type: String },
@@ -54,17 +52,7 @@ const UserSchema = new mongoose.Schema({
       url: { type: String }
     }]
   }]
-    
-  //anything else we can think of to include
 });
-
-// EventSchema.methods.apiRepr = function(){
-//     return {
-//         id: this._id,
-//         userName: this.userName,
-//         //rest of the user model
-//     }
-// }
 
 UserSchema.methods.apiRepr = function() {
   return {

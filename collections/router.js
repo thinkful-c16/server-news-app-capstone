@@ -6,8 +6,6 @@ const { User } = require('../users/model');
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const passport = require('passport');
-// const faker = require('faker');
-// const { col1, col2, } = require('./data');
 
 
 
@@ -25,7 +23,7 @@ router.post('/', jwtAuth, (req, res) => {
     {upsert: true, new: true})
     .then(user => {
       res.status(201).json(user.collections[user.collections.length-1]);
-    }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
+    }).catch(err => res.status(500).json({message: 'Something went wrong'}));
 });
 
 router.post('/:collection', jwtAuth, (req, res) => {
@@ -34,14 +32,17 @@ router.post('/:collection', jwtAuth, (req, res) => {
   const article = req.body;
   User.findOneAndUpdate(
     {'_id': userId, 'collections._id': collectionId},
-    {$push: {'collections.$.collectionArticles': article }},
+    {$push: {'collections.collectionArticles': article }},
     {upsert: true, new: true})
     .then(user => {
       res.status(201).location(`/api/collections/${collectionId}`).json(user.collections.find(collection => {
         const foundCollection = collection._id.toString() === collectionId;
         return foundCollection;
       }));
-    }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
+    }).catch(err => {
+      res.status(500).json({message: 'Something went wrong'}
+    
+      );});
 });
 
 module.exports = { router };
