@@ -46,7 +46,7 @@ const UserSchema = new mongoose.Schema({
     id: mongoose.Schema.Types.ObjectId,        
     collectionTitle: { type: String },
     collectionArticles: [{
-      _id: mongoose.Schema.Types.ObjectId,
+      id: mongoose.Schema.Types.ObjectId,
       title: { type: String },
       author: { type: String },
       description: { type: String },
