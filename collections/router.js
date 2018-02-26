@@ -28,7 +28,7 @@ router.post('/', jwtAuth, (req, res) => {
     }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
 });
 
-router.post('/:collections', jwtAuth, (req, res) => {
+router.post('/:collection', jwtAuth, (req, res) => {
   const collectionId = req.params.id;
   const userId = req.user.id;
   const article = req.body;
