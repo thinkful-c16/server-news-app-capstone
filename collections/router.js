@@ -22,16 +22,15 @@ const jwtAuth = passport.authenticate('jwt', { session: false });
 //return the collection id and location to the user
 
 router.post('/', jwtAuth, (req, res) => {
+  const newCollection = req.body;
   const userId = req.user.id;
-  // console.log(user);
-  User.findById(userId)
+  User.findOneAndUpdate(
+    {'_id': userId}, 
+    {$push: { collections: newCollection}}, 
+    {upsert: true})
     .then(user => {
-      console.log(user)
-      user.collections = col1;
-      user.save();
-      console.log('User after new collection', user);
-    });
-  res.send('ok');
+      res.status(201).json(user.collections);
+    }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
 });
 
 //article from the client is an object
@@ -43,7 +42,19 @@ router.post('/', jwtAuth, (req, res) => {
 router.post('/:collections', jwtAuth, (req, res) => {
   const collectionId = req.params.id;
   const userId = req.user.id;
-
+  const article = req.body;
+  User.findById(userId)
+    .then(user => {
+      const foundCollection = user.collections.find(collection => collection.id === collectionId);
+      user.update( {collections: {'_id': foundCollection.id} },
+        {$push: {'collectionArticles': article}});
+      user.save();
+      res.status(201).location(`/api/collections/${collectionId}`).json();
+      // user.update(
+      //   {$push: {correctCollection: {collectionArticles: article}
+      //   }}); //user.collections.push
+    
+    }).catch(err => res.status(err.code).json({message: 'Something went wring'}));
 });
 
 module.exports = { router };
