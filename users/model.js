@@ -42,16 +42,18 @@ const UserSchema = new mongoose.Schema({
   }],
   usersFollowingCount: { type: Number },
   usersFollowedCount: { type: Number },
-  collections: {
+  collections: [{
+    id: mongoose.Schema.Types.ObjectId,        
     collectionTitle: { type: String },
     collectionArticles: [{
+      id: mongoose.Schema.Types.ObjectId,
       title: { type: String },
       author: { type: String },
       description: { type: String },
       image: { type: String},
       url: { type: String }
     }]
-  }
+  }]
     
   //anything else we can think of to include
 });
@@ -70,6 +72,13 @@ UserSchema.methods.apiRepr = function() {
     email: this.email,
     firstName: this.name.firstName || '',
     lastName: this.name.lastName || ''
+  };
+};
+
+UserSchema.methods.getCollection = function() {
+  return {
+    collectionTitle: this.collection_title,
+    collectionArticles: this.collectionArticles
   };
 };
   
