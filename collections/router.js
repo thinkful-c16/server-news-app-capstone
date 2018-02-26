@@ -34,14 +34,18 @@ router.post('/:collection', jwtAuth, (req, res) => {
   const article = req.body;
   User.findOneAndUpdate(
     {'_id': userId, 'collections._id': collectionId},
-    {$push: {'collections.$.collectionArticles': article }},
+    {$push: {'collections.collectionArticles': article }},
     {upsert: true, new: true})
     .then(user => {
       res.status(201).location(`/api/collections/${collectionId}`).json(user.collections.find(collection => {
         const foundCollection = collection._id.toString() === collectionId;
         return foundCollection;
       }));
-    }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
+    }).catch(err => {
+      console.log(err)
+      res.status(500).json({message: 'Something went wrong'}
+    
+      );});
 });
 
 module.exports = { router };
