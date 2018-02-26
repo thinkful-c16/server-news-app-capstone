@@ -27,7 +27,7 @@ router.post('/', jwtAuth, (req, res) => {
       res.status(201).json(user.collections[user.collections.length-1]);
     }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
 });
-//adding articles to the first collection every time
+
 router.post('/:collection', jwtAuth, (req, res) => {
   const collectionId = req.params.collection;
   const userId = req.user.id;
@@ -38,7 +38,8 @@ router.post('/:collection', jwtAuth, (req, res) => {
     {upsert: true, new: true})
     .then(user => {
       res.status(201).location(`/api/collections/${collectionId}`).json(user.collections.find(collection => {
-        return collection._id === collectionId;
+        const foundCollection = collection._id.toString() === collectionId;
+        return foundCollection;
       }));
     }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
 });
