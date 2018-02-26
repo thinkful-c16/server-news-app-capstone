@@ -22,21 +22,24 @@ router.post('/', jwtAuth, (req, res) => {
   User.findOneAndUpdate(
     {'_id': userId}, 
     {$push: { collections: newCollection}}, 
-    {upsert: true})
+    {upsert: true, new: true})
     .then(user => {
-      res.status(201).json(user.collections);
+      res.status(201).json(user.collections[user.collections.length-1]);
     }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
 });
-
+//adding articles to the first collection every time
 router.post('/:collection', jwtAuth, (req, res) => {
-  const collectionId = req.params.id;
+  const collectionId = req.params.collection;
   const userId = req.user.id;
   const article = req.body;
-  User.findOneAndUpdate({'_id': userId, 'collections.id': collectionId},
-    { $push: {'collections.$.collectionArticles': article }},
-    {upsert: true})
+  User.findOneAndUpdate(
+    {'_id': userId, 'collections._id': collectionId},
+    {$push: {'collections.$.collectionArticles': article }},
+    {upsert: true, new: true})
     .then(user => {
-      res.status(201).location(`/api/collections/${collectionId}`).json(user.collections.collectionArticles);
+      res.status(201).location(`/api/collections/${collectionId}`).json(user.collections.find(collection => {
+        return collection._id === collectionId;
+      }));
     }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
 });
 
