@@ -6,8 +6,6 @@ const { User } = require('../users/model');
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const passport = require('passport');
-// const faker = require('faker');
-// const { col1, col2, } = require('./data');
 
 
 
