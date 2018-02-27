@@ -111,14 +111,18 @@ router.put('/:collections', jwtAuth, (req, res) => {
     });
 });
 
-router.delete('/:collections', jwtAuth, (req, res) => {
-    console.log(req.params.id)
+router.delete('/:collection', jwtAuth, (req, res) => {
+    console.log(req.params.collection)
+    console.log(req.user.id)
   User.update(
-    {_id: req.params.collections},
-    { $pull: { 'collections':{_id: req.params.id} } }
+    {_id: req.user.id},
+    { "$pull": { 'collections': { _id: req.params.collection } } }
   )
     .then(result => {
-      res.status(204).end();
+      res.status(204).send();
+    })
+    .catch(err => {
+      res.status(500).json({message: 'Something went wrong and your collection was not deleted'})
     });
 });
 
