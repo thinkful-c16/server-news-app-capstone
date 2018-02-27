@@ -46,7 +46,7 @@ router.post('/', jwtAuth, (req, res) => {
     {upsert: true, new: true})
     .then(user => {
       res.status(201).json(user.collections[user.collections.length-1]);
-    }).catch(err => {
+    }).catch((err)=> {
       console.log(err);
       res.status(500).json({message: 'Something went wrong'});
     });
