@@ -14,19 +14,29 @@ const jwtAuth = passport.authenticate('jwt', { session: false });
 router.use(jsonParser);
 
 router.get('/', jwtAuth, (req, res) => {
-  const user = req.user;
-  // console.log('this is the user', user);
-  User.findById(user.id)
-    .then(_user => {
-      // console.log('this is user collections inside promise', _user.collections)
-      res.status(200).json(_user.collections);
+  console.log(req.user);
+  const userId = req.user.id;
+  User.findById(userId)
+    .then(user => {
+      console.log(user);
+      res.status(200).json(user.collections);
     })
     .catch(err => {
+      console.log(err);
       res.status(500).json({
         message: 'Internal Server Error'
       });
     });
-//   res.send('ok');
+});
+
+router.get('/:collection', jwtAuth, (req, res) => {
+  const userId = req.user.id;
+  const collectionId = req.params.collection;
+  User.findById(userId)
+    .then(user => {
+      const foundCollection = user.collections.find(collection => collection.id === collectionId);
+      res.status(200).json(foundCollection);
+    });
 });
 
 router.post('/', jwtAuth, (req, res) => {
@@ -39,8 +49,8 @@ router.post('/', jwtAuth, (req, res) => {
     .then(user => {
       res.status(201).json(user.collections[user.collections.length-1]);
     }).catch(err => {
-        console.log(err)
-      res.status(500).json({message: 'Something went wrong'})
+      console.log(err);
+      res.status(500).json({message: 'Something went wrong'});
     });
 });
 
@@ -50,7 +60,7 @@ router.post('/:collection', jwtAuth, (req, res) => {
   const article = req.body;
   User.findOneAndUpdate(
     {'_id': userId, 'collections._id': collectionId},
-    {$push: {'collections.collectionArticles': article }},
+    {$push: {'collections.$.collectionArticles': article }},
     {upsert: true, new: true})
     .then(user => {
       res.status(201).location(`/api/collections/${collectionId}`).json(user.collections.find(collection => {
@@ -58,7 +68,7 @@ router.post('/:collection', jwtAuth, (req, res) => {
         return foundCollection;
       }));
     }).catch(err => {
-      console.log(err)
+      console.log(err);
       res.status(500).json({message: 'Something went wrong'}
       
       );});
@@ -86,11 +96,11 @@ router.put('/:collections', jwtAuth, (req, res) => {
 
   User.findOneAndUpdate(
     {'_id': userId, 'collections._id': collectionId}, 
-    {$set: {'collections.$': updated}}, 
+    {$set: {'collections.$.collectionTitle': updated.collectionTitle}}, 
     {upsert: true, new: true})
     .then(user => {
-      console.log(user);
-      console.log('UPDATED FIELD>>>>', updated)
+    //   console.log(user);
+      console.log('UPDATED FIELD>>>>', updated);
       res.status(201).json();
     })
     .catch(err => {
@@ -101,7 +111,8 @@ router.put('/:collections', jwtAuth, (req, res) => {
     });
 });
 
-router.delete('/:collections/:id', jwtAuth, (req, res) => {
+router.delete('/:collections', jwtAuth, (req, res) => {
+    console.log(req.params.id)
   User.update(
     {_id: req.params.collections},
     { $pull: { 'collections':{_id: req.params.id} } }
