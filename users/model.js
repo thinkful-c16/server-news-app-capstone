@@ -28,16 +28,22 @@ const UserSchema = new mongoose.Schema({
   },
   likes: { type: Boolean, default: false },
   articlesShared: [{
-    _id: mongoose.Schema.Types.ObjectId,
-    articleTitle: {type: String},
-    numberOfArticles: {type: Number}
+    title: { type: String },
+    url: {type: String},
+    image: { type: String },
+    author: { type: String },
+    source: {
+      id: { type: String },
+      name: { type: String }
+    },
+    dateShared: { type: Date }
   }],
   usersFollowing: [{
-    _id: mongoose.Schema.Types.ObjectId,
+    // _id: mongoose.Schema.Types.ObjectId,
     userName: { type: String }
   }],
   usersFollowed: [{
-    _id: mongoose.Schema.Types.ObjectId,        
+    // _id: mongoose.Schema.Types.ObjectId,        
     userName: { type: String } 
   }],
   usersFollowingCount: { type: Number },
