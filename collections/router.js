@@ -37,11 +37,6 @@ router.get('/:collection', jwtAuth, (req, res) => {
     });
 });
 
-router.use(jsonParser);
-
-
-const jwtAuth = passport.authenticate('jwt', { session: false });
-
 router.post('/', jwtAuth, (req, res) => {
   const newCollection = req.body;
   const userId = req.user.id;
@@ -74,7 +69,7 @@ router.post('/:collection', jwtAuth, (req, res) => {
       console.log(err);
       res.status(500).json({message: 'Something went wrong'}
       );
-  });
+    });
 });
 
 router.put('/:collections', jwtAuth, (req, res) => {
@@ -115,19 +110,18 @@ router.put('/:collections', jwtAuth, (req, res) => {
 });
 
 router.delete('/:collection', jwtAuth, (req, res) => {
-    console.log(req.params.collection)
-    console.log(req.user.id)
+  console.log(req.params.collection);
+  console.log(req.user.id);
   User.update(
     {_id: req.user.id},
-    { "$pull": { 'collections': { _id: req.params.collection } } }
+    { '$pull': { 'collections': { _id: req.params.collection } } }
   )
     .then(result => {
       res.status(204).send();
     })
     .catch(err => {
-      res.status(500).json({message: 'Something went wrong and your collection was not deleted'})
+      res.status(500).json({message: 'Something went wrong and your collection was not deleted'});
     });
-    }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
 });
 
 module.exports = { router };
