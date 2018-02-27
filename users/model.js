@@ -58,20 +58,19 @@ const UserSchema = new mongoose.Schema({
   //anything else we can think of to include
 });
 
-// EventSchema.methods.apiRepr = function(){
-//     return {
-//         id: this._id,
-//         userName: this.userName,
-//         //rest of the user model
-//     }
-// }
-
 UserSchema.methods.apiRepr = function() {
   return {
     id: this._id,
     email: this.email,
     firstName: this.name.firstName || '',
     lastName: this.name.lastName || ''
+  };
+};
+
+UserSchema.methods.getCollection = function() {
+  return {
+    collectionTitle: this.collection_title,
+    collectionArticles: this.collectionArticles
   };
 };
   

@@ -6,8 +6,6 @@ const { User } = require('../users/model');
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const passport = require('passport');
-const { collection1, collection2, } = require('./dummy-data');
-
 
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
@@ -38,6 +36,11 @@ router.get('/:collection', jwtAuth, (req, res) => {
       res.status(200).json(foundCollection);
     });
 });
+
+router.use(jsonParser);
+
+
+const jwtAuth = passport.authenticate('jwt', { session: false });
 
 router.post('/', jwtAuth, (req, res) => {
   const newCollection = req.body;
@@ -70,8 +73,8 @@ router.post('/:collection', jwtAuth, (req, res) => {
     }).catch(err => {
       console.log(err);
       res.status(500).json({message: 'Something went wrong'}
-      
-      );});
+      );
+  });
 });
 
 router.put('/:collections', jwtAuth, (req, res) => {
@@ -124,6 +127,7 @@ router.delete('/:collection', jwtAuth, (req, res) => {
     .catch(err => {
       res.status(500).json({message: 'Something went wrong and your collection was not deleted'})
     });
+    }).catch(err => res.status(err.code).json({message: 'Something went wrong'}));
 });
 
 module.exports = { router };
