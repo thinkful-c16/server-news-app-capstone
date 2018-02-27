@@ -17,7 +17,6 @@ const app = express();
 const { router: authRouter, localStrategy, jwtStrategy, facebookStrategy } = require('./auth');
 const { router: collectionsRouter } = require('./collections');
 const { router: usersRouter } = require('./users');
-const { router: collectionsRouter } = require('./collections');
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
 
