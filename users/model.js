@@ -29,14 +29,14 @@ const UserSchema = new mongoose.Schema({
   likes: { type: Boolean, default: false },
   articlesShared: [{
     title: { type: String },
-    url: {type: String},
+    url: { type: String},
     image: { type: String },
     author: { type: String },
     source: {
       id: { type: String },
       name: { type: String }
     },
-    dateShared: { type: Date }
+    dateShared: { type: Date, default: Date.now }
   }],
   usersFollowing: [{
     // _id: mongoose.Schema.Types.ObjectId,
@@ -51,13 +51,15 @@ const UserSchema = new mongoose.Schema({
   collections: [{
     // _id: mongoose.Schema.Types.ObjectId,
     collectionTitle: { type: String },
+    dateCreated: { type: Date, default: Date.now },
     collectionArticles: [{
       // _id: mongoose.Schema.Types.ObjectId,      
       title: { type: String },
       author: { type: String },
       description: { type: String },
       image: { type: String},
-      url: { type: String }
+      url: { type: String },
+      dateAdded: { type: Date, default: Date.now }
     }]
   }]
     
