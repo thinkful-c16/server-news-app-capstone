@@ -55,7 +55,7 @@ describe('Mocha and Chai', function() {
 });
 
 describe('Collections Resource', function() {
-  let authenticatedUser = chai.request(app);
+//   let authenticatedUser = chai.request(app);
   const userCreds = {
     email: 'helloworld@gov.com',
     name: {
@@ -69,7 +69,7 @@ describe('Collections Resource', function() {
     console.log('starting web server for tests');
     dbConnect(TEST_DATABASE_URL);
     console.log('register a new user');
-    authenticatedUser
+    chai.request(app)
       .post('/api/users')
       .send(userCreds)
       .end(function() {
@@ -82,7 +82,7 @@ describe('Collections Resource', function() {
 
   //   });
     
-  after(function() {
+  afterEach(function() {
     tearDownDb();
     return dbDisconnect();
   });
@@ -108,13 +108,15 @@ describe('Collections Resource', function() {
   
   it('logs in an existing user', function(done) {
 
-    authenticatedUser   
+    chai.request(app)  
       .post('/api/auth/login')
       .send({email: userCreds.email, password: userCreds.password})
-      .end((err, response) => {
-        expect(response.statusCode).to.equal(200);
-        expect('Location', '/');
-        done();
+      .end(function(res){
+        expect(res.statusCode).to.equal(404)
+        res.should.be.json;
+        res.should.have.location(`api/users/${userCreds.id}`);
+        return User.findById(userCreds.id);
       });
+    done();
   });
 });
