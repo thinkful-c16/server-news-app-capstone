@@ -38,7 +38,6 @@ describe('Mocha and Chai', function() {
 //pass the header after the jwt creation
 
 describe('User Authentication', function() {
-//   let authenticatedUser = chai.request(app);
   const testUser = {
     email: 'helloworld@gov.com',
     name: {
@@ -50,7 +49,7 @@ describe('User Authentication', function() {
   
   before(function() {
     console.log('starting web server for tests');
-    dbConnect(TEST_DATABASE_URL)
+    dbConnect(TEST_DATABASE_URL);
     return User.hashPassword(testUser.password)
       .then(password => User.create({
         email: testUser.email,
@@ -64,7 +63,7 @@ describe('User Authentication', function() {
       .then(() => dbDisconnect());
   });
 
-  describe('registration success', () => {
+  describe('Registration', () => {
     it('registers the test user', () => {
       let newUser = {
         email: faker.internet.email(),
@@ -78,13 +77,13 @@ describe('User Authentication', function() {
         .post('/api/users')
         .send(newUser)
         .then(res => {
-          console.log('registration res >>>>', res.body)
+          console.log('registration res >>>>', res.body);
           expect(res).to.have.status(201);
           return User.findById(res.body.id)
             .then(user => {
               expect(user.email).to.equal(newUser.email);
-            }).catch(err => console.log(err))
-        }).catch(err => console.log(err))
+            });
+        });
     });
   });
 
@@ -98,37 +97,5 @@ describe('User Authentication', function() {
         expect(res).to.be.json;
       });
   });
-  // it('registers a new user', function(done) {
-  //     let newUser = {
-  //     email: faker.internet.email(),
-  //     name: {
-  //         firstName: faker.name.firstName(),
-  //         lastName: faker.name.lastName()
-  //     },
-  //     password: faker.internet.password()
-  //     };
-  //     chai.request(app)
-  //     .post('/api/users')
-  //     .send(newUser)
-  //     .end(function(err, res) {
-  //         expect(res.status).to.equal(201);
-  //         expect('Location', `/api/users/${newUser.id}`);
-  //         done();
-  //     });
-  // });
-  
-//   it('logs in an existing user', function(done) {
-
-//     chai.request(app)  
-//       .post('/api/auth/login')
-//       .send({email: userCreds.email, password: userCreds.password})
-//       .then(function(res){
-//         console.log(res);
-//         expect(res.status).to.equal(404);
-//         res.should.be.json;
-//         res.should.have.location(`api/users/${userCreds.id}`);
-//         return User.findById(userCreds.id);
-//       });
-//     done();
-//   });
 });
+
