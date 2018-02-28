@@ -16,7 +16,7 @@ router.get('/', jwtAuth, (req, res) => {
   const userId = req.user.id;
   User.findById(userId)
     .then(user => {
-      console.log(user);
+      // console.log(user);
       res.status(200).json(user.collections);
     })
     .catch(err => {
