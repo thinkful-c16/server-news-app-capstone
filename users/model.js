@@ -53,7 +53,11 @@ const UserSchema = new mongoose.Schema({
     collectionTitle: { type: String },
     dateCreated: { type: Date, default: Date.now },
     collectionArticles: [{
-      // _id: mongoose.Schema.Types.ObjectId,      
+      // _id: mongoose.Schema.Types.ObjectId,
+      source: {
+        id: { type: String },
+        name: { type: String }
+      },
       title: { type: String },
       author: { type: String },
       description: { type: String },
