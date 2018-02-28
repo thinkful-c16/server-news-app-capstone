@@ -72,23 +72,41 @@ describe('Collections Resource', function() {
     authenticatedUser
       .post('/api/users')
       .send(userCreds)
-      .end(function(err, res) {
-        expect(res.statusCode).to.equal(201);
-        done()
+      .end(function() {
+        done();
       });
   });
 
-  beforeEach(function() {
+  //   beforeEach(function() {
 
 
-  });
+  //   });
     
   after(function() {
     tearDownDb();
     return dbDisconnect();
   });
+
+  it('registers a new user', function(done) {
+    let newUser = {
+      email: faker.internet.email(),
+      name: {
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName()
+      },
+      password: faker.internet.password()
+    };
+    chai.request(app)
+      .post('/api/users')
+      .send(newUser)
+      .end(function(err, res) {
+        expect(res.statusCode).to.equal(201);
+        expect('Location', `/api/users/${newUser.id}`);
+        done();
+      });
+  });
   
-  it('logs in the user', function(done) {
+  it('logs in an existing user', function(done) {
 
     authenticatedUser   
       .post('/api/auth/login')
@@ -98,6 +116,5 @@ describe('Collections Resource', function() {
         expect('Location', '/');
         done();
       });
-
   });
 });
