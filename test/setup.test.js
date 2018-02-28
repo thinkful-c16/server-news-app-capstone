@@ -7,6 +7,8 @@ const mongoose = require('mongoose');
 const { app } = require('../index');
 const { User } = require('../users');
 const faker = require('faker');
+const  jwt  = require('jsonwebtoken');
+const { JWT_SECRET, JWT_EXPIRY } = require('../config');
 
 const {TEST_DATABASE_URL} = require('../config');
 const {dbConnect, dbDisconnect} = require('../db-mongoose');
@@ -33,7 +35,7 @@ const generateUserData = () => {
   };
 };
 const seedUserData = () => {
-  console.info('seeing user data');
+  console.info('seeding user data');
   const userData = [];
   for (let i=0; i <= 5; i++) {
     userData.push(generateUserData());
@@ -53,34 +55,49 @@ describe('Mocha and Chai', function() {
 });
 
 describe('Collections Resource', function() {
+  let authenticatedUser = chai.request(app);
+  const userCreds = {
+    email: 'helloworld@gov.com',
+    name: {
+      firstName: 'TestUser',
+      lastName: 'TestUser'
+    },
+    password: '12345'
+  };
   
-  before(function() {
+  before(function(done) {
     console.log('starting web server for tests');
-    return dbConnect(TEST_DATABASE_URL);
+    dbConnect(TEST_DATABASE_URL);
+    console.log('register a new user');
+    authenticatedUser
+      .post('/api/users')
+      .send(userCreds)
+      .end(function(err, res) {
+        expect(res.statusCode).to.equal(201);
+        done()
+      });
   });
 
   beforeEach(function() {
-    return seedUserData();
+
+
   });
     
-  afterEach(function() {
-    return tearDownDb();
-  });
-
   after(function() {
+    tearDownDb();
     return dbDisconnect();
   });
   
-  it('should create a new collection', function() {
-    const newCollection = {
-      collectionTitle: 'Test collection',
-      collectionArticles: []
-    };
-    return chai.request(app)
-      .post('/api/collections/')
-      .send(newCollection)
-      .then(function(response) {
-        response.should.have.status(201);
+  it('logs in the user', function(done) {
+
+    authenticatedUser   
+      .post('/api/auth/login')
+      .send({email: userCreds.email, password: userCreds.password})
+      .end((err, response) => {
+        expect(response.statusCode).to.equal(200);
+        expect('Location', '/');
+        done();
       });
+
   });
 });
