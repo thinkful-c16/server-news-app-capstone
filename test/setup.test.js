@@ -24,25 +24,6 @@ process.stdout.write('\x1Bc\n');
 const expect = chai.expect;
 chai.use(chaiHttp);
 
-const generateUserData = () => {
-  return {
-    email: faker.internet.email(),
-    name: {
-      firstName: faker.name.firstName(),
-      lastName: faker.name.lastName()
-    },
-    password: faker.internet.password()
-  };
-};
-const seedUserData = () => {
-  console.info('seeding user data');
-  const userData = [];
-  for (let i=0; i <= 5; i++) {
-    userData.push(generateUserData());
-  }
-  return User.insertMany(userData);
-};
-
 const tearDownDb = () => {
   console.warn('Deleting database');
   return mongoose.connection.dropDatabase();
@@ -54,9 +35,11 @@ describe('Mocha and Chai', function() {
   });
 });
 
-describe('Collections Resource', function() {
+//pass the header after the jwt creation
+
+describe('User Authentication', function() {
 //   let authenticatedUser = chai.request(app);
-  const userCreds = {
+  const testUser = {
     email: 'helloworld@gov.com',
     name: {
       firstName: 'TestUser',
@@ -65,58 +48,87 @@ describe('Collections Resource', function() {
     password: '12345'
   };
   
-  before(function(done) {
+  before(function() {
     console.log('starting web server for tests');
-    dbConnect(TEST_DATABASE_URL);
-    console.log('register a new user');
-    chai.request(app)
-      .post('/api/users')
-      .send(userCreds)
-      .end(function() {
-        done();
-      });
+    dbConnect(TEST_DATABASE_URL)
+    return User.hashPassword(testUser.password)
+      .then(password => User.create({
+        email: testUser.email,
+        name: testUser.name,
+        password
+      }));
   });
 
-  //   beforeEach(function() {
-
-
-  //   });
-    
-  afterEach(function() {
-    tearDownDb();
-    return dbDisconnect();
+  after(function() {
+    return tearDownDb()
+      .then(() => dbDisconnect());
   });
 
-  it('registers a new user', function(done) {
-    let newUser = {
-      email: faker.internet.email(),
-      name: {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName()
-      },
-      password: faker.internet.password()
-    };
-    chai.request(app)
-      .post('/api/users')
-      .send(newUser)
-      .end(function(err, res) {
-        expect(res.statusCode).to.equal(201);
-        expect('Location', `/api/users/${newUser.id}`);
-        done();
-      });
+  describe('registration success', () => {
+    it('registers the test user', () => {
+      let newUser = {
+        email: faker.internet.email(),
+        name: {
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName()
+        },
+        password: faker.internet.password()
+      };
+      return chai.request.agent(app)
+        .post('/api/users')
+        .send(newUser)
+        .then(res => {
+          console.log('registration res >>>>', res.body)
+          expect(res).to.have.status(201);
+          return User.findById(res.body.id)
+            .then(user => {
+              expect(user.email).to.equal(newUser.email);
+            }).catch(err => console.log(err))
+        }).catch(err => console.log(err))
+    });
   });
-  
-  it('logs in an existing user', function(done) {
 
-    chai.request(app)  
+  it('logs the test user in', () => {
+    return chai.request.agent(app)
       .post('/api/auth/login')
-      .send({email: userCreds.email, password: userCreds.password})
-      .end(function(res){
-        expect(res.statusCode).to.equal(404)
-        res.should.be.json;
-        res.should.have.location(`api/users/${userCreds.id}`);
-        return User.findById(userCreds.id);
+      .send({email: testUser.email, password: testUser.password})
+      .then(res => {
+        expect(res).to.have.status(200);
+        expect(res.body.authToken).to.be.a('string');
+        expect(res).to.be.json;
       });
-    done();
   });
+  // it('registers a new user', function(done) {
+  //     let newUser = {
+  //     email: faker.internet.email(),
+  //     name: {
+  //         firstName: faker.name.firstName(),
+  //         lastName: faker.name.lastName()
+  //     },
+  //     password: faker.internet.password()
+  //     };
+  //     chai.request(app)
+  //     .post('/api/users')
+  //     .send(newUser)
+  //     .end(function(err, res) {
+  //         expect(res.status).to.equal(201);
+  //         expect('Location', `/api/users/${newUser.id}`);
+  //         done();
+  //     });
+  // });
+  
+//   it('logs in an existing user', function(done) {
+
+//     chai.request(app)  
+//       .post('/api/auth/login')
+//       .send({email: userCreds.email, password: userCreds.password})
+//       .then(function(res){
+//         console.log(res);
+//         expect(res.status).to.equal(404);
+//         res.should.be.json;
+//         res.should.have.location(`api/users/${userCreds.id}`);
+//         return User.findById(userCreds.id);
+//       });
+//     done();
+//   });
 });
