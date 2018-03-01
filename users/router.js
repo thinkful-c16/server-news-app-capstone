@@ -58,6 +58,7 @@ router.post('/', jsonParser, (req, res ) => {
   return User.find({email})
     .count()
     .then(count => {
+      console.log(count)
       if (count > 0) {
         return Promise.reject({
           code: 422,

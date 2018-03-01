@@ -36,36 +36,28 @@ router.post('/refresh', jwtAuth, (req, res) => {
 router.post('/facebook', (req, res) => {
   let user;
   const userToken = req.body.token;
-  console.log('user token from client side >>>>', userToken);
   fetch(`https://graph.facebook.com/debug_token?input_token=${userToken}&access_token=${FACEBOOK_APP_TOKEN}`)
     .then(response => response.json())
     .then(data => {
-      console.log('DATA', data)
       const { user_id } = data.data;
       fetch(`https://graph.facebook.com/${user_id}?access_token=${FACEBOOK_APP_TOKEN}&fields=id,email,first_name,last_name`)
         .then(response => response.json())
         .then(userData => {
           if(!userData.email) {
-            console.log('No email returned for this facebook user');
-            //use the user's facebook id to hash in place of the email field
+            //if no email, use the user's facebook id and hash it for required email field
             User.hashPassword(userData.id)
               .then(hashedId => {
-                // return userData.email = hashedId+'@FACEBOOK.COM';
                 return userData = {
                   email: hashedId+'@FACEBOOK.COM',
                   first_name: userData.first_name,
                   last_name: userData.last_name
                 };
               });
-          }
-          console.log('RESPONSE AFTER DATA FETCH', userData);
-          
+          }          
           User.findOne({$or: [{'email': userData.email}, {'facebook.id': user_id}]})
             .then(_user => {
               user = _user;
-              console.log('user after facebook query >>>', user);
               if (!user) {
-                console.log('USER DATA EMAIL if not USER', userData.email);
                 const { first_name, last_name, email } = userData;
                 let name = {
                   firstName: first_name,
@@ -78,25 +70,19 @@ router.post('/facebook', (req, res) => {
                   'facebook.token': userToken
                 })
                   .then(user => {
-                    console.log('Newly created user >>>>>', user);
                     const authToken = createAuthToken(user.apiRepr());
-                    console.log('Our auth token after creating user>>>>>', authToken);
                     return res.status(201).location(`/api/auth/${user.id}`).json({authToken});
                   });
               }
               else if (user) {
-                console.log('Else if user already exists >>>>>', user);
                 user.facebook.id = user_id;
                 user.facebook.token = userToken;
                 !user.email ? user.email = userData.email : null;
-                console.log('existing user after assigning keys >>>>', user);
                 user.save();   
                 const authToken = createAuthToken(user.apiRepr());
-                console.log('our auth token after existing user verified', authToken);
                 return res.json({authToken});    
               }
-            }).catch(err => {
-              console.log('server err message', err);
+            }).catch(() => {
               res.status(500).json({message:'Uh oh, something went wrong'});
             });
         });

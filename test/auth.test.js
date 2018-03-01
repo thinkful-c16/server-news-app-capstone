@@ -13,10 +13,7 @@ const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_ID, FACEBOOK_APP_TOKEN } = require(
 
 const {TEST_DATABASE_URL} = require('../config');
 const {dbConnect, dbDisconnect} = require('../db-mongoose');
-// const {dbConnect, dbDisconnect} = require('../db-knex');
 
-// Set NODE_ENV to `test` to disable http layer logs
-// You can do this in the command line, but this is cross-platform
 process.env.NODE_ENV = 'test';
 
 // Clear the console before each run
@@ -35,8 +32,6 @@ describe('Mocha and Chai', function() {
     expect(true).to.be.true;
   });
 });
-
-//pass the header after the jwt creation
 
 describe('User Authentication', function() {
 
@@ -80,7 +75,6 @@ describe('User Authentication', function() {
         .post('/api/users')
         .send(newUser)
         .then(res => {
-          console.log('registration res >>>>', res.body);
           expect(res).to.have.status(201);
           return User.findById(res.body.id)
             .then(user => {
