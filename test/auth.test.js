@@ -45,7 +45,7 @@ describe('User Authentication', function() {
   };
   
   before(function() {
-    console.log('starting web server for tests');
+    console.log('starting web server for authentication tests');
     dbConnect(TEST_DATABASE_URL);
     return User.hashPassword(testUser.password)
       .then(password => User.create({
@@ -56,9 +56,11 @@ describe('User Authentication', function() {
   });
 
   after(function() {
+    console.log('Disconnecting server');
     return tearDownDb()
       .then(() => dbDisconnect());
   });
+
 
   describe('Registration', () => {
 
