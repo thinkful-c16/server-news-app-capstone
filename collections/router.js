@@ -3,6 +3,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { User } = require('../users/model');
+const { Activity, activityOptions } = require('../activity/model');
 const router = express.Router();
 const jsonParser = bodyParser.json();
 const passport = require('passport');
@@ -46,7 +47,14 @@ router.post('/', jwtAuth, (req, res) => {
     {upsert: true, new: true})
     .then(user => {
       res.status(201).json(user.collections[user.collections.length-1]);
-    }).catch((err)=> {
+      return Activity.create({
+        owner: user, 
+        activityType: activityOptions.NEW_COLLECTION, 
+        data: {
+          username: user.name,
+          collectionTitle: newCollection.collectionTitle}});
+    })
+    .catch((err)=> {
       console.log(err);
       res.status(500).json({message: 'Something went wrong'});
     });
@@ -63,6 +71,15 @@ router.post('/:collection', jwtAuth, (req, res) => {
     .then(user => {
       res.status(201).location(`/api/collections/${collectionId}`).json(user.collections.find(collection => {
         const foundCollection = collection._id.toString() === collectionId;
+        Activity.create({
+          owner: user, 
+          activityType: activityOptions.NEW_COLLECTION_ARTICLE, 
+          data: {
+            username: user.name,
+            collectionTitle: collection.collectionTitle,
+            articleTitle: article.title
+          }
+        });
         return foundCollection;
       }));
     }).catch(err => {
