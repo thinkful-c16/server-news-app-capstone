@@ -97,5 +97,20 @@ describe('User Authentication', function() {
         expect(res).to.be.json;
       });
   });
+
+  describe('Social Media Authentication', () => {
+    const fbTestUser1 = {
+      // name: 'Karen Albdfbicgbhih Baoson',
+      // userId: 117056325792013,
+      // email: 'cklmqvlzjy_1519250319@tfbnw.net',
+      token: 'EAAcR2zWSJHsBANZC19VXiMBlCqpiT2EvSDJ0aTaQ7gWu66GqwpJKWyBK9JRJ2Td5YfNi0iCCP6DhBtLp0SqjE58Wj2DRt45tYXWybkawxaDDVaWwnMXZAAzAK01JNcR33OzX2TZBNM0HwkeUxZAkrHvSZAncxQR7ZCMGVLw5Rrulluha3o62XKzcFu8BZBwZA0XvmZAN9jDnl9H0M276CN4ZBM42J9nK7gmps7c2RJ42rQVAZDZD'
+    };
+    it.only('should verify the access token receieved from the client', () => {
+      return chai.request.agent(app)
+        .post('/api/auth/facebook')
+        .send(fbTestUser1)
+        .then(res => console.log(res)).catch(err => console.log(err));
+    });
+  });
 });
 

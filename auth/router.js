@@ -40,10 +40,13 @@ router.post('/facebook', (req, res) => {
   fetch(`https://graph.facebook.com/debug_token?input_token=${userToken}&access_token=${FACEBOOK_APP_TOKEN}`)
     .then(response => response.json())
     .then(data => {
+      console.log('DATA >>>>', data)
       const { user_id } = data.data;
       fetch(`https://graph.facebook.com/${user_id}?access_token=${FACEBOOK_APP_TOKEN}&fields=id,first_name,last_name,email`)
         .then(response => response.json())
         .then(userData => {
+          console.log('RESPONSE AFTER DATA FETCH', userData)
+
           User.findOne({$or: [{'email': userData.email}, {'facebook.id': user_id}]})
             .then(_user => {
               user = _user;
@@ -79,7 +82,8 @@ router.post('/facebook', (req, res) => {
                 return res.json({authToken});    
               }
             }).catch(err => {
-              res.status(err.code).json({message:'Uh oh, something went wrong'});
+              console.log('server err message', err);
+              res.status(500).json({message:'Uh oh, something went wrong'});
             });
         });
     });
