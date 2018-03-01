@@ -26,8 +26,6 @@ const tearDownDb = () => {
   return mongoose.connection.dropDatabase();
 };
 
-//pass the header after the jwt creation
-
 describe('User Collections Resource', function() {
   let authToken;
   const testUser = {
@@ -57,11 +55,6 @@ describe('User Collections Resource', function() {
       }).then(token => authToken = token);
   });
 
-  // beforeEach(function() {
-  //   console.log('login the user');
-  //   return User.findOne().then(user => console.log(user));
-  // });
-
   after(function() {
     console.log('Disconnecting server');
     return tearDownDb()
@@ -82,8 +75,36 @@ describe('User Collections Resource', function() {
         .then(res => {
           res.should.have.status(201);
           res.should.be.json;
+          res.body.should.contain.keys('_id', 'collectionTitle', 'collectionArticles');
           res.body.collectionTitle.should.equal(testCollection.collectionTitle);
           res.body.collectionArticles.should.be.an('array');
+        });
+    });
+    it('should add an article to a collection', () => {
+      let collection;
+      const awesomeArticle = {
+        title: 'Foo',
+        author: 'Ms. Foo Bar',
+        description: 'Bar, an opinion',
+        image: 'foo.jpg',
+        url: 'foobarbizzbang.com'
+      };
+      return User.findById(testUser.id)
+        .then(user => {
+          collection = user.collections[0];
+          return chai.request.agent(app)
+            .post(`/api/collections/${user.collections[0].id}`)
+            .set('Authorization', `Bearer ${authToken}`)
+            .send(awesomeArticle);
+        })
+        .then(res => {
+          console.log(res.body.collectionArticles);
+          res.should.have.status(201);
+          res.body.collectionArticles.should.be.an('array');
+          res.body.collectionArticles[0].should.be.an('object');
+          res.body.collectionArticles[0].should.contain.keys('_id', 'title', 'url');
+          res.body.collectionArticles[0].title.should.equal(awesomeArticle.title);
+          res.body.collectionArticles[0].author.should.equal(awesomeArticle.author);
         });
     });
   });
