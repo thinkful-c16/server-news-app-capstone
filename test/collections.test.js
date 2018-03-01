@@ -66,6 +66,24 @@ describe('User Collections Resource', function() {
       collectionTitle: 'Test',
       collectionArticles: []
     };
+    const mySecondCollection = {
+      collectionTitle: 'Collection Two',
+      collectionArticles: []
+    };
+    const awesomeArticle = {
+      title: 'Foo',
+      author: 'Ms. Foo Bar',
+      description: 'Bar, an opinion',
+      image: 'foo.jpg',
+      url: 'foobarbizzbang.com'
+    };
+    const aBetterArticle = {
+      title: 'Bizz',
+      author: 'Ms. Bang',
+      description: 'Bang, a case for it',
+      image: 'bizzbang.png',
+      url: 'bizzfoobar.com'
+    };
 
     it('should add a new collection', () => {
       return chai.request.agent(app)
@@ -82,13 +100,7 @@ describe('User Collections Resource', function() {
     });
     it('should add an article to a collection', () => {
       let collection;
-      const awesomeArticle = {
-        title: 'Foo',
-        author: 'Ms. Foo Bar',
-        description: 'Bar, an opinion',
-        image: 'foo.jpg',
-        url: 'foobarbizzbang.com'
-      };
+    
       return User.findById(testUser.id)
         .then(user => {
           collection = user.collections[0];
@@ -98,7 +110,6 @@ describe('User Collections Resource', function() {
             .send(awesomeArticle);
         })
         .then(res => {
-          console.log(res.body.collectionArticles);
           res.should.have.status(201);
           res.body.collectionArticles.should.be.an('array');
           res.body.collectionArticles[0].should.be.an('object');
@@ -107,8 +118,29 @@ describe('User Collections Resource', function() {
           res.body.collectionArticles[0].author.should.equal(awesomeArticle.author);
         });
     });
+    it('should add an article to the correct collection (if multiple)', () => {
+      let firstCollection;
+      return chai.request.agent(app)
+        .post('/api/collections')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(mySecondCollection)
+        .then(() => {
+          return User.findById(testUser.id)
+            .then(user => {
+              firstCollection = user.collections[0];
+              return chai.request.agent(app)
+                .post(`/api/collections/${user.collections[1].id}`)
+                .set('Authorization', `Bearer ${authToken}`)
+                .send(aBetterArticle);
+            })
+            .then(res => {
+              res.should.have.status(201);
+              res.should.be.json;
+              res.body._id.should.not.equal(firstCollection._id);
+              res.body.collectionTitle.should.equal(mySecondCollection.collectionTitle);
+            });
+        });
+    });
   });
-
-  
 });
 
