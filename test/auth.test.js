@@ -48,7 +48,7 @@ describe('User Authentication', function() {
   };
   
   before(function() {
-    console.log('starting web server for tests');
+    console.log('starting web server for authentication tests');
     dbConnect(TEST_DATABASE_URL);
     return User.hashPassword(testUser.password)
       .then(password => User.create({
@@ -59,32 +59,31 @@ describe('User Authentication', function() {
   });
 
   after(function() {
+    console.log('Disconnecting server');
     return tearDownDb()
       .then(() => dbDisconnect());
   });
 
-  describe('Registration', () => {
-    it('registers the test user', () => {
-      let newUser = {
-        email: faker.internet.email(),
-        name: {
-          firstName: faker.name.firstName(),
-          lastName: faker.name.lastName()
-        },
-        password: faker.internet.password()
-      };
-      return chai.request.agent(app)
-        .post('/api/users')
-        .send(newUser)
-        .then(res => {
-          console.log('registration res >>>>', res.body);
-          expect(res).to.have.status(201);
-          return User.findById(res.body.id)
-            .then(user => {
-              expect(user.email).to.equal(newUser.email);
-            });
-        });
-    });
+  it('registers the test user', () => {
+    let newUser = {
+      email: faker.internet.email(),
+      name: {
+        firstName: faker.name.firstName(),
+        lastName: faker.name.lastName()
+      },
+      password: faker.internet.password()
+    };
+    return chai.request.agent(app)
+      .post('/api/users')
+      .send(newUser)
+      .then(res => {
+        // console.log('registration res >>>>', res.body);
+        expect(res).to.have.status(201);
+        return User.findById(res.body.id)
+          .then(user => {
+            expect(user.email).to.equal(newUser.email);
+          });
+      });
   });
 
   it('logs the test user in', () => {
