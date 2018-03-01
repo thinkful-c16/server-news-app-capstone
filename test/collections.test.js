@@ -63,26 +63,26 @@ describe('User Collections Resource', function() {
 
   describe('POST endpoint for a new collection', () => {
     const testCollection = {
-      collectionTitle: 'Test',
+      collectionTitle: faker.lorem.word(),
       collectionArticles: []
     };
     const mySecondCollection = {
-      collectionTitle: 'Collection Two',
+      collectionTitle: faker.lorem.word(),
       collectionArticles: []
     };
     const awesomeArticle = {
-      title: 'Foo',
-      author: 'Ms. Foo Bar',
-      description: 'Bar, an opinion',
-      image: 'foo.jpg',
-      url: 'foobarbizzbang.com'
+      title: faker.lorem.sentence(),
+      author: `${faker.name.firstName()} ${faker.name.lastName()}`,
+      description: faker.lorem.paragraph(),
+      image: faker.internet.url(),
+      url: faker.internet.url()
     };
     const aBetterArticle = {
-      title: 'Bizz',
-      author: 'Ms. Bang',
-      description: 'Bang, a case for it',
-      image: 'bizzbang.png',
-      url: 'bizzfoobar.com'
+      title: faker.lorem.sentence(),
+      author: `${faker.name.firstName()} ${faker.name.lastName()}`,
+      description: faker.lorem.paragraph(),
+      image: faker.internet.url(),
+      url: faker.internet.url()
     };
 
     it('should add a new collection', () => {
