@@ -8,7 +8,8 @@ const { app } = require('../index');
 const { User } = require('../users');
 const faker = require('faker');
 const  jwt  = require('jsonwebtoken');
-const { JWT_SECRET, JWT_EXPIRY } = require('../config');
+const fetch = require('node-fetch');
+const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_ID, FACEBOOK_APP_TOKEN } = require('../config');
 
 const {TEST_DATABASE_URL} = require('../config');
 const {dbConnect, dbDisconnect} = require('../db-mongoose');
@@ -38,6 +39,7 @@ describe('Mocha and Chai', function() {
 //pass the header after the jwt creation
 
 describe('User Authentication', function() {
+
   const testUser = {
     email: 'helloworld@gov.com',
     name: {
@@ -64,6 +66,7 @@ describe('User Authentication', function() {
   });
 
   describe('Registration', () => {
+
     it('registers the test user', () => {
       let newUser = {
         email: faker.internet.email(),
@@ -99,17 +102,41 @@ describe('User Authentication', function() {
   });
 
   describe('Social Media Authentication', () => {
-    const fbTestUser1 = {
-      // name: 'Karen Albdfbicgbhih Baoson',
-      // userId: 117056325792013,
-      // email: 'cklmqvlzjy_1519250319@tfbnw.net',
-      token: 'EAAcR2zWSJHsBANZC19VXiMBlCqpiT2EvSDJ0aTaQ7gWu66GqwpJKWyBK9JRJ2Td5YfNi0iCCP6DhBtLp0SqjE58Wj2DRt45tYXWybkawxaDDVaWwnMXZAAzAK01JNcR33OzX2TZBNM0HwkeUxZAkrHvSZAncxQR7ZCMGVLw5Rrulluha3o62XKzcFu8BZBwZA0XvmZAN9jDnl9H0M276CN4ZBM42J9nK7gmps7c2RJ42rQVAZDZD'
+
+    const fetchValidToken = () => {
+      return fetch(`https://graph.facebook.com/${FACEBOOK_APP_ID}/accounts/test-users?access_token=${FACEBOOK_APP_TOKEN}`).then(response => response.json().then(data => {
+        const randomTestUser = data.data[Math.floor(Math.random() * data.data.length)];
+        return randomTestUser;
+      }));
     };
-    it.only('should verify the access token receieved from the client', () => {
-      return chai.request.agent(app)
-        .post('/api/auth/facebook')
-        .send(fbTestUser1)
-        .then(res => console.log(res)).catch(err => console.log(err));
+    const fbTestUser1 = {
+      token: ''
+    };
+    it('should verify the fb token and return a valid JWT', () => {
+      return fetchValidToken()
+        .then(token => {
+          fbTestUser1.token = token.access_token;
+          return chai.request.agent(app)
+            .post('/api/auth/facebook')
+            .send(fbTestUser1)
+            .then(res => {
+              res.body.authToken.should.exist;
+            })
+            .then(() => {
+              return User.findOne({'facebook.token': fbTestUser1.token })
+                .then(user => {
+                  user.facebook.token.should.equal(fbTestUser1.token);
+                });
+            });
+        });
+    });
+    it('should create an email for the user if null', () => {
+      return User.findOne({'facebook.token': fbTestUser1.token })
+        .then(res => {
+          const concatFb = res.email.substring(60, res.email.length);
+          res.email.should.exist;
+          res.email.should.contain(concatFb);
+        });
     });
   });
 });

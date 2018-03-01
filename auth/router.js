@@ -40,18 +40,32 @@ router.post('/facebook', (req, res) => {
   fetch(`https://graph.facebook.com/debug_token?input_token=${userToken}&access_token=${FACEBOOK_APP_TOKEN}`)
     .then(response => response.json())
     .then(data => {
-      console.log('DATA >>>>', data)
+      console.log('DATA', data)
       const { user_id } = data.data;
-      fetch(`https://graph.facebook.com/${user_id}?access_token=${FACEBOOK_APP_TOKEN}&fields=id,first_name,last_name,email`)
+      fetch(`https://graph.facebook.com/${user_id}?access_token=${FACEBOOK_APP_TOKEN}&fields=id,email,first_name,last_name`)
         .then(response => response.json())
         .then(userData => {
-          console.log('RESPONSE AFTER DATA FETCH', userData)
-
+          if(!userData.email) {
+            console.log('No email returned for this facebook user');
+            //use the user's facebook id to hash in place of the email field
+            User.hashPassword(userData.id)
+              .then(hashedId => {
+                // return userData.email = hashedId+'@FACEBOOK.COM';
+                return userData = {
+                  email: hashedId+'@FACEBOOK.COM',
+                  first_name: userData.first_name,
+                  last_name: userData.last_name
+                };
+              });
+          }
+          console.log('RESPONSE AFTER DATA FETCH', userData);
+          
           User.findOne({$or: [{'email': userData.email}, {'facebook.id': user_id}]})
             .then(_user => {
               user = _user;
               console.log('user after facebook query >>>', user);
               if (!user) {
+                console.log('USER DATA EMAIL if not USER', userData.email);
                 const { first_name, last_name, email } = userData;
                 let name = {
                   firstName: first_name,
@@ -96,7 +110,7 @@ router.post('/google', (req, res) => {
   fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${userToken}`)
     .then(response => response.json())
     .then(data => {
-      const { sub, email, given_name, family_name } = data
+      const { sub, email, given_name, family_name } = data;
       User.findOne({ $or: [{'email': email}, {'google.id': sub}] })
         .then(_user => {
           user = _user;
@@ -104,17 +118,17 @@ router.post('/google', (req, res) => {
             let name = {
               firstName: data.given_name,
               lastName: data.family_name
-            }
+            };
             return User.create({
               name,
               email,
               'google.id': sub,
               'google.token': userToken
             })
-            .then(user => {
-              const authToken = createAuthToken(user.apiRepr());
-              return res.status(201).location(`/api/auth/${user.id}`.json({authToken}))
-            })
+              .then(user => {
+                const authToken = createAuthToken(user.apiRepr());
+                return res.status(201).location(`/api/auth/${user.id}`.json({authToken}));
+              });
           }
           if(user){
             user.email ? user.google.id = sub : user.email = user.email;
@@ -125,8 +139,8 @@ router.post('/google', (req, res) => {
         .then(user => {
           const authToken = createAuthToken(user.apiRepr());
           return res.json({authToken}); 
-        })
-    })
+        });
+    });
 });
 
 module.exports = { router };
