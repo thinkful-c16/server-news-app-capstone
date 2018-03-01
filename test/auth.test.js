@@ -8,14 +8,12 @@ const { app } = require('../index');
 const { User } = require('../users');
 const faker = require('faker');
 const  jwt  = require('jsonwebtoken');
-const { JWT_SECRET, JWT_EXPIRY } = require('../config');
+const fetch = require('node-fetch');
+const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_ID, FACEBOOK_APP_TOKEN } = require('../config');
 
 const {TEST_DATABASE_URL} = require('../config');
 const {dbConnect, dbDisconnect} = require('../db-mongoose');
-// const {dbConnect, dbDisconnect} = require('../db-knex');
 
-// Set NODE_ENV to `test` to disable http layer logs
-// You can do this in the command line, but this is cross-platform
 process.env.NODE_ENV = 'test';
 
 // Clear the console before each run
@@ -35,9 +33,8 @@ describe('Mocha and Chai', function() {
   });
 });
 
-//pass the header after the jwt creation
-
 describe('User Authentication', function() {
+
   const testUser = {
     email: 'helloworld@gov.com',
     name: {
@@ -64,26 +61,29 @@ describe('User Authentication', function() {
       .then(() => dbDisconnect());
   });
 
-  it('registers the test user', () => {
-    let newUser = {
-      email: faker.internet.email(),
-      name: {
-        firstName: faker.name.firstName(),
-        lastName: faker.name.lastName()
-      },
-      password: faker.internet.password()
-    };
-    return chai.request.agent(app)
-      .post('/api/users')
-      .send(newUser)
-      .then(res => {
-        // console.log('registration res >>>>', res.body);
-        expect(res).to.have.status(201);
-        return User.findById(res.body.id)
-          .then(user => {
-            expect(user.email).to.equal(newUser.email);
-          });
-      });
+
+  describe('Registration', () => {
+
+    it('registers the test user', () => {
+      let newUser = {
+        email: faker.internet.email(),
+        name: {
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName()
+        },
+        password: faker.internet.password()
+      };
+      return chai.request.agent(app)
+        .post('/api/users')
+        .send(newUser)
+        .then(res => {
+          expect(res).to.have.status(201);
+          return User.findById(res.body.id)
+            .then(user => {
+              expect(user.email).to.equal(newUser.email);
+            });
+        });
+    });
   });
 
   it('logs the test user in', () => {
@@ -95,6 +95,45 @@ describe('User Authentication', function() {
         expect(res.body.authToken).to.be.a('string');
         expect(res).to.be.json;
       });
+  });
+
+  describe('Social Media Authentication', () => {
+
+    const fetchValidToken = () => {
+      return fetch(`https://graph.facebook.com/${FACEBOOK_APP_ID}/accounts/test-users?access_token=${FACEBOOK_APP_TOKEN}`).then(response => response.json().then(data => {
+        const randomTestUser = data.data[Math.floor(Math.random() * data.data.length)];
+        return randomTestUser;
+      }));
+    };
+    const fbTestUser1 = {
+      token: ''
+    };
+    it('should verify the fb token and return a valid JWT', () => {
+      return fetchValidToken()
+        .then(token => {
+          fbTestUser1.token = token.access_token;
+          return chai.request.agent(app)
+            .post('/api/auth/facebook')
+            .send(fbTestUser1)
+            .then(res => {
+              res.body.authToken.should.exist;
+            })
+            .then(() => {
+              return User.findOne({'facebook.token': fbTestUser1.token })
+                .then(user => {
+                  user.facebook.token.should.equal(fbTestUser1.token);
+                });
+            });
+        });
+    });
+    it('should create an email for the user if null', () => {
+      return User.findOne({'facebook.token': fbTestUser1.token })
+        .then(res => {
+          const concatFb = res.email.substring(60, res.email.length);
+          res.email.should.exist;
+          res.email.should.contain(concatFb);
+        });
+    });
   });
 });
 

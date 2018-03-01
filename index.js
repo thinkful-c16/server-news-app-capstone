@@ -40,7 +40,6 @@ passport.use(facebookStrategy);
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/collections', collectionsRouter);
-// app.get('/api/dashboard', authRouter);
 
 
 app.get('/api/dashboard', jwtAuth, (req, res) => {		
