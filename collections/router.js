@@ -37,21 +37,22 @@ router.get('/:collection', jwtAuth, (req, res) => {
 
 router.post('/', jwtAuth, (req, res) => {
   const newCollection = req.body;
-  const userId = req.user.id;
-  User.findOneAndUpdate(
-    {'_id': userId}, 
+  const userId = req.user._id;
+  User.findByIdAndUpdate(
+    userId, 
     {$push: { collections: newCollection}}, 
     {upsert: true, new: true})
     .then(user => {
       res.status(201).json(user.collections[user.collections.length-1]);
       return Activity.create({
-        owner: user, 
+        owner: userId, 
         activityType: activityOptions.NEW_COLLECTION, 
         data: {
           username: user.name,
           collectionTitle: newCollection.collectionTitle}});
-    })
-    .catch(()=> {
+    }).then(data => console.log('DATA??', data, 'DATA?? ENDS'))
+    .catch((err)=> {
+      console.log(err)
       res.status(500).json({message: 'Something went wrong'});
     });
 });

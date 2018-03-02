@@ -92,12 +92,20 @@ describe('User Collections Resource', function() {
         .set('Authorization', `Bearer ${authToken}`)
         .send(testCollection)
         .then(res => {
+          // console.log(res.body);
           res.should.have.status(201);
           res.should.be.json;
           res.body.should.contain.keys('_id', 'collectionTitle', 'collectionArticles');
           res.body.collectionTitle.should.equal(testCollection.collectionTitle);
           res.body.collectionArticles.should.be.an('array');
-          return Activity.find().then(data => console.log(data))
+          return Activity.findOne({'data.$.owner': testUser._id})
+            .then(result => {
+              console.log('test--DATA?', result)
+              console.log('res?????', res.body)
+              should.exist(res.body);
+              res.body.collectionTitle.should.equal(result.data.collectionTitle);
+
+            });
         });
     });
     it('should add an article to a collection', () => {
