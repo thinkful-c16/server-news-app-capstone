@@ -100,10 +100,11 @@ describe('User Authentication', function() {
   describe('Social Media Authentication', () => {
 
     const fetchValidToken = () => {
-      return fetch(`https://graph.facebook.com/${FACEBOOK_APP_ID}/accounts/test-users?access_token=${FACEBOOK_APP_TOKEN}`).then(response => response.json().then(data => {
-        const randomTestUser = data.data[Math.floor(Math.random() * data.data.length)];
-        return randomTestUser;
-      }));
+      return fetch(`https://graph.facebook.com/${FACEBOOK_APP_ID}/accounts/test-users?access_token=${FACEBOOK_APP_TOKEN}`)
+        .then(response => response.json().then(data => {
+          const randomTestUser = data.data[Math.floor(Math.random() * data.data.length)];
+          return randomTestUser;
+        }));
     };
     const fbTestUser1 = {
       token: ''
