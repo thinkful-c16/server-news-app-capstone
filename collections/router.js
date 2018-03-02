@@ -13,15 +13,12 @@ const jwtAuth = passport.authenticate('jwt', { session: false });
 router.use(jsonParser);
 
 router.get('/', jwtAuth, (req, res) => {
-  console.log(req.user);
   const userId = req.user.id;
   User.findById(userId)
     .then(user => {
-      // console.log(user);
       res.status(200).json(user.collections);
     })
-    .catch(err => {
-      console.log(err);
+    .catch(() => {
       res.status(500).json({
         message: 'Internal Server Error'
       });
@@ -54,8 +51,7 @@ router.post('/', jwtAuth, (req, res) => {
           username: user.name,
           collectionTitle: newCollection.collectionTitle}});
     })
-    .catch((err)=> {
-      console.log(err);
+    .catch(()=> {
       res.status(500).json({message: 'Something went wrong'});
     });
 });
@@ -64,29 +60,32 @@ router.post('/:collection', jwtAuth, (req, res) => {
   const collectionId = req.params.collection;
   const userId = req.user.id;
   const article = req.body;
+  let foundCollection;
   User.findOneAndUpdate(
     {'_id': userId, 'collections._id': collectionId},
     {$push: {'collections.$.collectionArticles': article }},
     {upsert: true, new: true})
     .then(user => {
-      res.status(201).location(`/api/collections/${collectionId}`).json(user.collections.find(collection => {
-        const foundCollection = collection._id.toString() === collectionId;
-        Activity.create({
-          owner: user, 
-          activityType: activityOptions.NEW_COLLECTION_ARTICLE, 
-          data: {
-            username: user.name,
-            collectionTitle: collection.collectionTitle,
-            articleTitle: article.title
-          }
-        });
-        return foundCollection;
-      }));
+      foundCollection = user.collections.find(collection => {
+        return collection._id.toString() === collectionId;
+      });
+      return Activity.create({
+        owner: user,
+        activityType: activityOptions.NEW_COLLECTION_ARTICLE,
+        data: {
+          username: user.name,
+          collectionTitle: foundCollection.collectionTitle,
+          articleTitle: article.title
+        }
+      }).then(() => {
+        res.status(201).location(`/api/collections/${collectionId}`).json(foundCollection);
+      });
     }).catch(err => {
       console.log(err);
       res.status(500).json({message: 'Something went wrong'}
       );
     });
+    
 });
 
 router.put('/:collections', jwtAuth, (req, res) => {
