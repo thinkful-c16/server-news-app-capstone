@@ -18,6 +18,7 @@ const { router: authRouter, localStrategy, jwtStrategy, facebookStrategy } = req
 const { router: collectionsRouter } = require('./collections');
 const { router: activityRouter } = require('./activity');
 const { router: usersRouter } = require('./users');
+const { router: activityRouter } = require('./activity');
 const jwtAuth = passport.authenticate('jwt', { session: false });
 
 
@@ -41,8 +42,7 @@ passport.use(facebookStrategy);
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/collections', collectionsRouter);
-app.use('/api/activity', activityRouter);
-
+app.use('/api/activities', activityRouter);
 
 app.get('/api/dashboard', jwtAuth, (req, res) => {		
   return res.json({data: 'hooray!'});
