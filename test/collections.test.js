@@ -6,6 +6,7 @@ const should = chai.should();
 const mongoose = require('mongoose');
 const { app } = require('../index');
 const { User } = require('../users');
+const { Activity } = require('../activity');
 const faker = require('faker');
 const  jwt  = require('jsonwebtoken');
 const { JWT_SECRET, JWT_EXPIRY } = require('../config');
@@ -85,7 +86,7 @@ describe('User Collections Resource', function() {
       url: faker.internet.url()
     };
 
-    it('should add a new collection', () => {
+    it.only('should add a new collection', () => {
       return chai.request.agent(app)
         .post('/api/collections')
         .set('Authorization', `Bearer ${authToken}`)
@@ -96,6 +97,7 @@ describe('User Collections Resource', function() {
           res.body.should.contain.keys('_id', 'collectionTitle', 'collectionArticles');
           res.body.collectionTitle.should.equal(testCollection.collectionTitle);
           res.body.collectionArticles.should.be.an('array');
+          return Activity.find().then(data => console.log(data))
         });
     });
     it('should add an article to a collection', () => {
