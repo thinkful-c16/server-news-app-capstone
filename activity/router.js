@@ -19,24 +19,33 @@ router.get('/', jwtAuth, (req, res) => {
 });
 
 router.post('/', jwtAuth, (req, res) => {
-  console.log('logging new share activity', req.body);
-
-  // Activity
-  //   .create({
-  //     owner: req.user.id,
-  //     activityType: activityOptions.SHARE_ARTICLE,
-  //     data: req.body.article,
-  //     channel: req.channel
-  //   })
-  //   .then(activity =>{
-  //     // console.log(activity);
-  //     res.status(201).json(activity);
-  //   })
-  //   .catch(err => {
-  //     console.error(err);
-  //     res.status(500).json({error: 'something went wrong'});
-  //   });
-
+  let userId = req.user.id;
+  User.findOne(
+    {'_id': userId}
+  )
+    .then((user) => {
+      Activity
+        .create({
+          owner: userId,
+          activityType: activityOptions.SHARE_ARTICLE,
+          data: {
+            user: user.name,
+            articleTitle: req.body.data1.title,
+            articleImage: req.body.data1.image,
+            articleUrl: req.body.data1.url,
+            articleSource: req.body.data1.source.name
+          },
+          channel: req.body.data2
+        })
+        .then(activity =>{
+          res.status(201).json(activity);
+        })
+        .catch(err => {
+          console.error(err);
+          res.status(500).json({error: 'something went wrong'});
+        });
+    }
+    );
 });
 
 module.exports = { router };
