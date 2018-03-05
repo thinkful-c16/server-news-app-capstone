@@ -38,22 +38,11 @@ const UserSchema = new mongoose.Schema({
     },
     dateShared: { type: Date, default: Date.now }
   }],
-  usersFollowing: [{
-    // _id: mongoose.Schema.Types.ObjectId,
-    userName: { type: String }
-  }],
-  usersFollowed: [{
-    // _id: mongoose.Schema.Types.ObjectId,        
-    userName: { type: String } 
-  }],
-  usersFollowingCount: { type: Number },
-  usersFollowedCount: { type: Number },
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User'}],
   collections: [{
-    // _id: mongoose.Schema.Types.ObjectId,
     collectionTitle: { type: String },
     dateCreated: { type: Date, default: Date.now },
     collectionArticles: [{
-      // _id: mongoose.Schema.Types.ObjectId,
       source: {
         id: { type: String },
         name: { type: String }
