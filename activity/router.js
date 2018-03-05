@@ -19,32 +19,24 @@ router.get('/', jwtAuth, (req, res) => {
 });
 
 router.post('/', jwtAuth, (req, res) => {
+  console.log('logging new share activity', req.body);
 
-    const requiredFields = ['owner', 'activityType'];
-    for (let i=0; i < requiredFields.length; i++) {
-      const field = requiredFields[i];
-      if (!(field in req.body)) {
-        const message = `Missing \`${field}\` in request body`;
-        console.error(message);
-        return res.status(400).send(message);
-      }
-    }
+  // Activity
+  //   .create({
+  //     owner: req.user.id,
+  //     activityType: activityOptions.SHARE_ARTICLE,
+  //     data: req.body.article,
+  //     channel: req.channel
+  //   })
+  //   .then(activity =>{
+  //     // console.log(activity);
+  //     res.status(201).json(activity);
+  //   })
+  //   .catch(err => {
+  //     console.error(err);
+  //     res.status(500).json({error: 'something went wrong'});
+  //   });
 
-    Activity
-    .create({
-      owner: req.user.id,
-      activityType: req.body.activityType,
-      date: req.body.date
-    })
-    .then(activity =>{
-      console.log(activity);
-      res.status(201).json(activity);
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({error: 'something went wrong'});
-    });
-
-})
+});
 
 module.exports = { router };
