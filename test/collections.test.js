@@ -96,7 +96,7 @@ describe('User Collections Resource', function() {
           res.body.should.contain.keys('_id', 'collectionTitle', 'collectionArticles');
           res.body.collectionTitle.should.equal(testCollection.collectionTitle);
           res.body.collectionArticles.should.be.an('array');
-          return Activity.findOne({'data.collectionTitle': res.body.collectionTitle})
+          return Activity.findOne({'activityType': 'new collection', 'data.collectionTitle': testCollection.collectionTitle})
             .then(result => {
               // console.log('IS RES TITLE HERE', res.body);
               console.log('RESULT', result);
@@ -130,9 +130,12 @@ describe('User Collections Resource', function() {
           res.body.collectionArticles[0].title.should.equal(awesomeArticle.title);
           res.body.collectionArticles[0].author.should.equal(awesomeArticle.author);
 
-          return Activity.findOne({'data.username.firstName': testUser.name.firstName})
-            .then(activities => console.log('ACTIVITIES ARTICLE??', activities)
-            );
+          return Activity.findOne({'data.articleTitle': awesomeArticle.title})
+            .then(activity => {
+              console.log('ACTIVITY in ADD ARTICLE?', activity);
+              activity.data.articleTitle.should.equal(awesomeArticle.title);
+            })
+          ;
         });
     });
     it('should add an article to the correct collection (if multiple)', () => {
@@ -156,6 +159,12 @@ describe('User Collections Resource', function() {
               res.should.be.json;
               res.body._id.should.not.equal(firstCollection._id);
               res.body.collectionTitle.should.equal(mySecondCollection.collectionTitle);
+
+              return Activity.findOne({'data.collectionTitle': mySecondCollection.collectionTitle, 'activityType': 'new collection article'})
+                .then(article => {
+                  console.log('MULTIPLE COL ARTICLE', article)
+                  article.data.collectionTitle.should.equal(mySecondCollection.collectionTitle)
+                });
             });
         });
     });
