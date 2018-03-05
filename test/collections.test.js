@@ -2,7 +2,6 @@
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const should = chai.should();
 const mongoose = require('mongoose');
 const { app } = require('../index');
 const { User } = require('../users');
@@ -86,7 +85,7 @@ describe('User Collections Resource', function() {
       url: faker.internet.url()
     };
 
-    it.only('should add a new collection', () => {
+    it('should add a new collection', () => {
       return chai.request.agent(app)
         .post('/api/collections')
         .set('Authorization', `Bearer ${authToken}`)
@@ -97,10 +96,12 @@ describe('User Collections Resource', function() {
           res.body.should.contain.keys('_id', 'collectionTitle', 'collectionArticles');
           res.body.collectionTitle.should.equal(testCollection.collectionTitle);
           res.body.collectionArticles.should.be.an('array');
-          return Activity.findOne({'data.$.owner': testUser._id})
+          return Activity.findOne({'data.collectionTitle': res.body.collectionTitle})
             .then(result => {
-              result.should.exist;
-              res.body.collectionTitle.should.equal(result.data.collectionTitle);
+              // console.log('IS RES TITLE HERE', res.body);
+              console.log('RESULT', result);
+              // result.should.exist;
+              result.activityType.should.equal('new collection');
               return User.findById(result.owner)
                 .then(user => {
                   result.owner.toString().should.equal(user._id.toString());
@@ -110,9 +111,10 @@ describe('User Collections Resource', function() {
     });
     it('should add an article to a collection', () => {
       let collection;
-    
-      return User.findById(testUser.id)
+
+      return User.findOne({'email': testUser.email})
         .then(user => {
+          // console.log('user in test', user);
           collection = user.collections[0];
           return chai.request.agent(app)
             .post(`/api/collections/${user.collections[0].id}`)
@@ -120,12 +122,17 @@ describe('User Collections Resource', function() {
             .send(awesomeArticle);
         })
         .then(res => {
+          // console.log('RES BODY ACT', res.body);
           res.should.have.status(201);
           res.body.collectionArticles.should.be.an('array');
           res.body.collectionArticles[0].should.be.an('object');
           res.body.collectionArticles[0].should.contain.keys('_id', 'title', 'url');
           res.body.collectionArticles[0].title.should.equal(awesomeArticle.title);
           res.body.collectionArticles[0].author.should.equal(awesomeArticle.author);
+
+          return Activity.findOne({'data.username.firstName': testUser.name.firstName})
+            .then(activities => console.log('ACTIVITIES ARTICLE??', activities)
+            );
         });
     });
     it('should add an article to the correct collection (if multiple)', () => {
@@ -135,8 +142,9 @@ describe('User Collections Resource', function() {
         .set('Authorization', `Bearer ${authToken}`)
         .send(mySecondCollection)
         .then(() => {
-          return User.findById(testUser.id)
+          return User.findOne({'email': testUser.email})
             .then(user => {
+              console.log('MULTIPLE COL', user)
               firstCollection = user.collections[0];
               return chai.request.agent(app)
                 .post(`/api/collections/${user.collections[1].id}`)

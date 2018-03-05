@@ -50,18 +50,18 @@ router.post('/', jwtAuth, (req, res) => {
         data: {
           username: user.name,
           collectionTitle: newCollection.collectionTitle}});
-    }).then(data => console.log('DATA??', data, 'DATA?? ENDS'))
-    .catch((err)=> {
-      console.log(err)
+    })
+    .catch(()=> {
       res.status(500).json({message: 'Something went wrong'});
     });
 });
 
 router.post('/:collection', jwtAuth, (req, res) => {
   const collectionId = req.params.collection;
-  const userId = req.user.id;
+  const userId = req.user._id;
   const article = req.body;
   let foundCollection;
+
   User.findOneAndUpdate(
     {'_id': userId, 'collections._id': collectionId},
     {$push: {'collections.$.collectionArticles': article }},
@@ -71,14 +71,15 @@ router.post('/:collection', jwtAuth, (req, res) => {
         return collection._id.toString() === collectionId;
       });
       return Activity.create({
-        owner: user,
+        owner: userId,
         activityType: activityOptions.NEW_COLLECTION_ARTICLE,
         data: {
           username: user.name,
           collectionTitle: foundCollection.collectionTitle,
           articleTitle: article.title
         }
-      }).then(() => {
+      }).then((activity) => {
+        console.log('ACTIVITY IN ENDPOINT', activity)
         res.status(201).location(`/api/collections/${collectionId}`).json(foundCollection);
       });
     }).catch(err => {
