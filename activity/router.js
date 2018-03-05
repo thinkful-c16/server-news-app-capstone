@@ -15,7 +15,7 @@ router.use(jsonParser);
 router.get('/', jwtAuth, (req, res) => {
   Activity.find()
     .then(activities => res.json(activities))
-    .catch(err => res.status(500).json({message: 'Something went wrong'}));
+    .catch(() => res.status(500).json({message: 'Something went wrong'}));
 });
 
 router.post('/', jwtAuth, (req, res) => {
@@ -40,8 +40,7 @@ router.post('/', jwtAuth, (req, res) => {
         .then(activity =>{
           res.status(201).json(activity);
         })
-        .catch(err => {
-          console.error(err);
+        .catch(() => {
           res.status(500).json({error: 'something went wrong'});
         });
     }
