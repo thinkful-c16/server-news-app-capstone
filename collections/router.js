@@ -140,4 +140,20 @@ router.delete('/:collection', jwtAuth, (req, res) => {
     });
 });
 
+router.delete('/:collection/:article', jwtAuth, (req, res) => {
+  const collectionId = req.params.collection;
+  const articleId = req.params.article;
+  const userId = req.user.id;
+  User.findOneAndUpdate(
+    {_id : userId, 'collections._id': collectionId},
+    { '$pull': { 'collections.$.collectionArticles': { _id : articleId } } }
+  )
+    .then(result => {
+      res.status(204).send();
+    })
+    .catch(err => {
+      res.status(500).json({message: 'Something went wrong and the article was not deleted from your collection'});
+    });
+});
+
 module.exports = { router };
