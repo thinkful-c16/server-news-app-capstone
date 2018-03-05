@@ -12,21 +12,16 @@ const UserSchema = new mongoose.Schema({
     lastName: { type: String, required: true }
   },
   password: { type: String },
-  confirmation_code: { type: String },
-  confirmed: { type: Boolean, default: false },
   facebook: {
     id: String,
     token: String,
     email: String,
-    name: String
   },
   google: {
     id: String,
     token: String,
     email: String,
-    name: String
   },
-  likes: { type: Boolean, default: false },
   articlesShared: [{
     title: { type: String },
     url: { type: String},
@@ -38,22 +33,10 @@ const UserSchema = new mongoose.Schema({
     },
     dateShared: { type: Date, default: Date.now }
   }],
-  usersFollowing: [{
-    // _id: mongoose.Schema.Types.ObjectId,
-    userName: { type: String }
-  }],
-  usersFollowed: [{
-    // _id: mongoose.Schema.Types.ObjectId,        
-    userName: { type: String } 
-  }],
-  usersFollowingCount: { type: Number },
-  usersFollowedCount: { type: Number },
   collections: [{
-    // _id: mongoose.Schema.Types.ObjectId,
     collectionTitle: { type: String },
     dateCreated: { type: Date, default: Date.now },
     collectionArticles: [{
-      // _id: mongoose.Schema.Types.ObjectId,
       source: {
         id: { type: String },
         name: { type: String }
@@ -66,8 +49,6 @@ const UserSchema = new mongoose.Schema({
       dateAdded: { type: Date, default: Date.now }
     }]
   }]
-    
-  //anything else we can think of to include
 });
 
 UserSchema.methods.apiRepr = function() {
@@ -79,13 +60,6 @@ UserSchema.methods.apiRepr = function() {
   };
 };
 
-UserSchema.methods.getCollection = function() {
-  return {
-    collectionTitle: this.collection_title,
-    collectionArticles: this.collectionArticles
-  };
-};
-  
 UserSchema.methods.validatePassword = function(password) {
   return bcrypt.compare(password, this.password);
 };

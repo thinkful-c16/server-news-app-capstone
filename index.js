@@ -36,7 +36,6 @@ app.use(
 
 passport.use(localStrategy);
 passport.use(jwtStrategy);
-passport.use(facebookStrategy);
 
 app.use('/api/users', usersRouter);
 app.use('/api/auth', authRouter);
@@ -46,6 +45,7 @@ app.use('/api/activities', activityRouter);
 app.get('/api/dashboard', jwtAuth, (req, res) => {		
   return res.json({data: 'hooray!'});
 });
+
 app.use('/', apiRouter);
 
 function runServer(port = PORT) {
