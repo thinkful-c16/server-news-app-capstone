@@ -63,7 +63,7 @@ router.post('/api/qCatSearch', JSONParser, (req, res) => {
 //get articles based on user search query
 router.post('/api/qSearch', JSONParser, (req, res) => {
   const searchTerm = req.body.searchTerm;
-  console.log('searchTerm:', searchTerm);
+  // console.log('searchTerm:', searchTerm);
   newsapi.v2.everything({
     q: searchTerm,
     sortBy: 'popularity',

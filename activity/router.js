@@ -19,32 +19,33 @@ router.get('/', jwtAuth, (req, res) => {
 });
 
 router.post('/', jwtAuth, (req, res) => {
-
-    const requiredFields = ['owner', 'activityType'];
-    for (let i=0; i < requiredFields.length; i++) {
-      const field = requiredFields[i];
-      if (!(field in req.body)) {
-        const message = `Missing \`${field}\` in request body`;
-        console.error(message);
-        return res.status(400).send(message);
-      }
+  let userId = req.user.id;
+  User.findOne(
+    {'_id': userId}
+  )
+    .then((user) => {
+      Activity
+        .create({
+          owner: userId,
+          activityType: activityOptions.SHARE_ARTICLE,
+          data: {
+            user: user.name,
+            articleTitle: req.body.data1.title,
+            articleImage: req.body.data1.image,
+            articleUrl: req.body.data1.url,
+            articleSource: req.body.data1.source.name
+          },
+          channel: req.body.data2
+        })
+        .then(activity =>{
+          res.status(201).json(activity);
+        })
+        .catch(err => {
+          console.error(err);
+          res.status(500).json({error: 'something went wrong'});
+        });
     }
-
-    Activity
-    .create({
-      owner: req.user.id,
-      activityType: req.body.activityType,
-      date: req.body.date
-    })
-    .then(activity =>{
-      console.log(activity);
-      res.status(201).json(activity);
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({error: 'something went wrong'});
-    });
-
-})
+    );
+});
 
 module.exports = { router };
