@@ -35,7 +35,7 @@ describe('Mocha and Chai', function() {
 
 describe('User Authentication', function() {
 
-  const testUser = {
+  let testUser = {
     email: 'helloworld@gov.com',
     name: {
       firstName: 'TestUser',
@@ -91,6 +91,7 @@ describe('User Authentication', function() {
       .post('/api/auth/login')
       .send({email: testUser.email, password: testUser.password})
       .then(res => {
+        console.log('LOGGING IN', res.body)
         expect(res).to.have.status(200);
         expect(res.body.authToken).to.be.a('string');
         expect(res).to.be.json;

@@ -47,6 +47,8 @@ describe('User Collections Resource', function() {
         password
       }))
       .then(user => {
+        user = user.apiRepr();
+        console.log(user);
         return jwt.sign({user}, JWT_SECRET, {
           subject: user.email,
           expiresIn: JWT_EXPIRY,
@@ -114,7 +116,6 @@ describe('User Collections Resource', function() {
 
       return User.findOne({'email': testUser.email})
         .then(user => {
-          // console.log('user in test', user);
           collection = user.collections[0];
           return chai.request.agent(app)
             .post(`/api/collections/${user.collections[0].id}`)
@@ -122,7 +123,6 @@ describe('User Collections Resource', function() {
             .send(awesomeArticle);
         })
         .then(res => {
-          // console.log('RES BODY ACT', res.body);
           res.should.have.status(201);
           res.body.collectionArticles.should.be.an('array');
           res.body.collectionArticles[0].should.be.an('object');
@@ -147,7 +147,7 @@ describe('User Collections Resource', function() {
         .then(() => {
           return User.findOne({'email': testUser.email})
             .then(user => {
-              console.log('MULTIPLE COL', user)
+              console.log('MULTIPLE COL', user);
               firstCollection = user.collections[0];
               return chai.request.agent(app)
                 .post(`/api/collections/${user.collections[1].id}`)
@@ -162,8 +162,8 @@ describe('User Collections Resource', function() {
 
               return Activity.findOne({'data.collectionTitle': mySecondCollection.collectionTitle, 'activityType': 'new collection article'})
                 .then(article => {
-                  console.log('MULTIPLE COL ARTICLE', article)
-                  article.data.collectionTitle.should.equal(mySecondCollection.collectionTitle)
+                  console.log('MULTIPLE COL ARTICLE', article);
+                  article.data.collectionTitle.should.equal(mySecondCollection.collectionTitle);
                 });
             });
         });

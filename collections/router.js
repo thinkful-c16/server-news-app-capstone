@@ -26,6 +26,7 @@ router.get('/', jwtAuth, (req, res) => {
 });
 
 router.get('/:collection', jwtAuth, (req, res) => {
+  console.log('UNDERSCORE USER?', req.user)
   const userId = req.user.id;
   const collectionId = req.params.collection;
   User.findById(userId)
@@ -36,8 +37,10 @@ router.get('/:collection', jwtAuth, (req, res) => {
 });
 
 router.post('/', jwtAuth, (req, res) => {
+  console.log('UNDERSCORE USER?', req.user)
+
   const newCollection = req.body;
-  const userId = req.user._id;
+  const userId = req.user.id;
   User.findByIdAndUpdate(
     userId, 
     {$push: { collections: newCollection}}, 
@@ -58,7 +61,7 @@ router.post('/', jwtAuth, (req, res) => {
 
 router.post('/:collection', jwtAuth, (req, res) => {
   const collectionId = req.params.collection;
-  const userId = req.user._id;
+  const userId = req.user.id;
   const article = req.body;
   let foundCollection;
 

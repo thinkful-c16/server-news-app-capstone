@@ -23,13 +23,14 @@ const localAuth = passport.authenticate('local', {session: false});
 
 router.post('/login', localAuth, (req, res) => {
   const authToken = createAuthToken(req.user.apiRepr());
+  /* automatically receieve the serialized user on regular requests but NOT in the tests; why is this? */
   res.json({authToken});
 });
 
 const jwtAuth = passport.authenticate('jwt', {session: false});
 
 router.post('/refresh', jwtAuth, (req, res) => {
-  const authToken = createAuthToken(req.user);
+  const authToken = createAuthToken(req.user.apiRepr());
   res.json({authToken});
 });
 
