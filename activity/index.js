@@ -1,6 +1,6 @@
 'use strict';
 
-const { router } = require('./router');
 const { Activity, activityOptions } = require('./model');
+const { router } = require('./router');
 
-module.exports = { router, Activity, activityOptions };
+module.exports = { Activity, activityOptions, router };
