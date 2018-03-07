@@ -143,6 +143,16 @@ describe('User Collections Resource', function() {
             });
         });
     });
+    it('should get all of a user\'s collections', () => {
+      return chai.request.agent(app)
+        .get('/api/collections')
+        .set('Authorization', `Bearer ${authToken}`)
+        .then(res => {
+          console.log(res.body)
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+        });
+    });
   });
 });
 
