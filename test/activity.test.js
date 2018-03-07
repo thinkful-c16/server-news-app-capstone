@@ -18,7 +18,6 @@ process.env.NODE_ENV = 'test';
 // Clear the console before each run
 process.stdout.write('\x1Bc\n');
 
-const expect = chai.expect;
 chai.use(chaiHttp);
 
 const tearDownDb = () => {
@@ -29,6 +28,7 @@ const tearDownDb = () => {
 describe('User Activities Resource', function() {
   let authToken;
   let _u;
+
   const testUser = {
     email: faker.internet.email(),
     name: {
@@ -36,8 +36,10 @@ describe('User Activities Resource', function() {
       lastName: faker.name.lastName()
     },
     password: faker.internet.password()
-  };
   
+  };
+
+
   before(function() {
     console.log('starting web server for activities tests');
     dbConnect(TEST_DATABASE_URL);
@@ -59,7 +61,7 @@ describe('User Activities Resource', function() {
       }).then(token => authToken = token)
       .then(() => {
         return Activity.create({
-          owner: _u._id,
+          owner: _u.id,
           activityType: activityOptions.NEW_COLLECTION,
           data: {
             username: `${_u.name.firstName} ${_u.name.lastName}`,
@@ -75,25 +77,53 @@ describe('User Activities Resource', function() {
       .then(() => dbDisconnect());
   });
 
-  describe('GET endpoint for user activities', () => {
-
-    it.only('should return all the user interactions from the app', () => {
-      return chai.request.agent(app)
-        .get('/api/activities')
-        .set('Authorization', `Bearer ${authToken}`)
-        .then(res => {
-          console.log(res.body);
-          console.log(res.body['0'].data);
-          res.should.have.status(200);
-          res.should.be.json;
-          res.body['0'].activityType.should.equal('new collection');
-          res.body['0'].data.username.should.equal(`${_u.name.firstName} ${testUser.name.lastName}`);
-        });
-    });
+  it('should return all the user interactions from the app', () => {
+    console.log('testu >>>>>>',testUser)
+    // const newCollection = {
+    //   owner: _u._id,
+    //   activityType: activityOptions.NEW_COLLECTION,
+    //   data: {
+    //     username: `${_u.name.firstName} ${_u.name.lastName}`,
+    //     collectionTitle: faker.lorem.sentence()
+    //   }
+    // }
+    return chai.request.agent(app)
+      .get('/api/activities')
+      .set('Authorization', `Bearer ${authToken}`)
+      .then(res => {
+        console.log(res.body);
+        console.log(res.body['0'].data);
+        res.should.have.status(200);
+        res.should.be.json;
+        res.body.length.should.equal(1);
+        res.body['0'].activityType.should.equal('new collection');
+        res.body['0'].data.username.should.equal(`${_u.name.firstName} ${_u.name.lastName}`);
+      });
   });
 
-  describe('POST endpoint for user activities', () => {
-
-  });
+  it('should create a shared article activity', () => {
+    const sharedArticle = {
+      owner: _u._id,
+      activityType: activityOptions.SHARE_ARTICLE,
+      data: {
+        user: `${_u.name.firstName} ${_u.name.lastName}`,
+        articleTitle: faker.lorem.sentence(),
+        articleImage: faker.internet.url(),
+        articleUrl: faker.internet.url(),
+        articleSource: faker.lorem.sentence()
+      },
+      channel: faker.internet.url()
+    };
+    return chai.request.agent(app)
+      .post('/api/activities')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send(sharedArticle)
+      .then(res => {
+        console.log('POST ACTIVITY>>>>>>>',res.body);
+        res.should.be.json;
+        res.status.should.equal(201)
+        res.body.activityType.should.equal('share article');
+      })
+  })
 });
 
