@@ -7,9 +7,8 @@ const mongoose = require('mongoose');
 const { app } = require('../index');
 const { User } = require('../users');
 const faker = require('faker');
-const  jwt  = require('jsonwebtoken');
 const fetch = require('node-fetch');
-const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_ID, FACEBOOK_APP_TOKEN } = require('../config');
+const { FACEBOOK_APP_ID, FACEBOOK_APP_TOKEN } = require('../config');
 
 const {TEST_DATABASE_URL} = require('../config');
 const {dbConnect, dbDisconnect} = require('../db-mongoose');
@@ -91,7 +90,6 @@ describe('User Authentication', function() {
       .post('/api/auth/login')
       .send({email: testUser.email, password: testUser.password})
       .then(res => {
-        console.log('LOGGING IN', res.body)
         expect(res).to.have.status(200);
         expect(res.body.authToken).to.be.a('string');
         expect(res).to.be.json;

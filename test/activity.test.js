@@ -77,22 +77,11 @@ describe('User Activities Resource', function() {
       .then(() => dbDisconnect());
   });
 
-  it('should return all the user interactions from the app', () => {
-    console.log('testu >>>>>>',testUser)
-    // const newCollection = {
-    //   owner: _u._id,
-    //   activityType: activityOptions.NEW_COLLECTION,
-    //   data: {
-    //     username: `${_u.name.firstName} ${_u.name.lastName}`,
-    //     collectionTitle: faker.lorem.sentence()
-    //   }
-    // }
+  it('should return all the user interactions from the app (GET)', () => {
     return chai.request.agent(app)
       .get('/api/activities')
       .set('Authorization', `Bearer ${authToken}`)
       .then(res => {
-        console.log(res.body);
-        console.log(res.body['0'].data);
         res.should.have.status(200);
         res.should.be.json;
         res.body.length.should.equal(1);
@@ -101,7 +90,7 @@ describe('User Activities Resource', function() {
       });
   });
 
-  it('should create a shared article activity', () => {
+  it('should create a shared article activity (POST)', () => {
     const sharedArticle = {
       owner: _u._id,
       activityType: activityOptions.SHARE_ARTICLE,
@@ -119,11 +108,59 @@ describe('User Activities Resource', function() {
       .set('Authorization', `Bearer ${authToken}`)
       .send(sharedArticle)
       .then(res => {
-        console.log('POST ACTIVITY>>>>>>>',res.body);
         res.should.be.json;
-        res.status.should.equal(201)
+        res.status.should.equal(201);
         res.body.activityType.should.equal('share article');
-      })
-  })
+      });
+  });
+
+  it('should create a new collection activity', () => {
+    const testCollection = {
+      collectionTitle: faker.lorem.word(),
+      collectionArticles: []
+    };
+    return chai.request.agent(app)
+      .post('/api/collections')
+      .set('Authorization', `Bearer ${authToken}`)
+      .send(testCollection)
+      .then(res => {
+        return Activity.findOne({'activityType': 'new collection', 'data.collectionTitle': testCollection.collectionTitle})
+          .then(result => {
+            // console.log('IS RES TITLE HERE', res.body);
+            console.log('RESULT', result);
+            result.activityType.should.equal('new collection');
+            return User.findById(result.owner)
+              .then(user => {
+                result.owner.toString().should.equal(user._id.toString());
+              });
+          });
+      });
+  });
+  it('should create a new article activity', () => {
+    let collection;
+    const awesomeArticle = {
+      title: faker.lorem.sentence(),
+      author: `${faker.name.firstName()} ${faker.name.lastName()}`,
+      description: faker.lorem.paragraph(),
+      image: faker.internet.url(),
+      url: faker.internet.url()
+    };
+
+    return User.findOne({'email': _u.email})
+      .then(user => {
+        collection = user.collections[0];
+        return chai.request.agent(app)
+          .post(`/api/collections/${user.collections[0].id}`)
+          .set('Authorization', `Bearer ${authToken}`)
+          .send(awesomeArticle)
+          .then(res => {
+            return Activity.findOne({'data.articleTitle': awesomeArticle.title})
+              .then(activity => {
+                console.log('ACTIVITY in ADD ARTICLE?', activity);
+                activity.data.articleTitle.should.equal(awesomeArticle.title);
+              });
+          });
+      });
+  });
 });
 
