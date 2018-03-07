@@ -48,7 +48,6 @@ describe('User Collections Resource', function() {
       }))
       .then(user => {
         user = user.apiRepr();
-        console.log(user);
         return jwt.sign({user}, JWT_SECRET, {
           subject: user.email,
           expiresIn: JWT_EXPIRY,
