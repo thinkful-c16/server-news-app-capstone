@@ -62,7 +62,7 @@ describe('User Collections Resource', function() {
       .then(() => dbDisconnect());
   });
 
-  describe('POST endpoint for a new collection', () => {
+  describe('Collection endpoints', () => {
     const testCollection = {
       collectionTitle: faker.lorem.word(),
       collectionArticles: []
@@ -86,7 +86,7 @@ describe('User Collections Resource', function() {
       url: faker.internet.url()
     };
 
-    it('should add a new collection', () => {
+    it('should add a new collection (POST)', () => {
       return chai.request.agent(app)
         .post('/api/collections')
         .set('Authorization', `Bearer ${authToken}`)
@@ -99,7 +99,7 @@ describe('User Collections Resource', function() {
           res.body.collectionArticles.should.be.an('array');
         });
     });
-    it('should add an article to a collection', () => {
+    it('should add an article to a collection (POST)', () => {
       let collection;
 
       return User.findOne({'email': testUser.email})
@@ -140,6 +140,48 @@ describe('User Collections Resource', function() {
               res.should.be.json;
               res.body._id.should.not.equal(firstCollection._id);
               res.body.collectionTitle.should.equal(mySecondCollection.collectionTitle);
+            });
+        });
+    });
+    it('should get all of a user\'s collections (GET)', () => {
+      return chai.request.agent(app)
+        .get('/api/collections')
+        .set('Authorization', `Bearer ${authToken}`)
+        .then(res => {
+          res.should.have.status(200);
+          res.body.should.be.an('array');
+        });
+    });
+    it('should delete a collection', () => {
+      return User.findOne()
+        .then(user => {
+          return user.collections[0]._id;
+        }).then(collectionId => {
+          return chai.request.agent(app)
+            .delete(`/api/collections/${collectionId}`)
+            .set('Authorization', `Bearer ${authToken}`)
+            .then(res => {
+              res.should.have.status(204);
+            });
+        });
+    });
+    it('should delete an article from a collection', () => {
+      let collectionId;
+      let articleId;
+      return User.findOne()
+        .then(user => {
+          return user.collections[0];
+        })
+        .then(collection => {
+          collectionId = collection._id;
+          return collection.collectionArticles[0]._id;
+        }).then(article => {
+          articleId = article;
+          return chai.request.agent(app)
+            .delete(`/api/collections/${collectionId}/${articleId}`)
+            .set('Authorization', `Bearer ${authToken}`)
+            .then(res => {
+              res.should.have.status(204);
             });
         });
     });

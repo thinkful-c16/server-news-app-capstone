@@ -144,7 +144,8 @@ router.delete('/:collection/:article', jwtAuth, (req, res) => {
     .then(() => {
       res.status(204).send();
     })
-    .catch(() => {
+    .catch((err) => {
+      console.log(err)
       res.status(500).json({message: 'Something went wrong and the article was not deleted from your collection'});
     });
 });
