@@ -7,9 +7,8 @@ const mongoose = require('mongoose');
 const { app } = require('../index');
 const { User } = require('../users');
 const faker = require('faker');
-const  jwt  = require('jsonwebtoken');
 const fetch = require('node-fetch');
-const { JWT_SECRET, JWT_EXPIRY, FACEBOOK_APP_ID, FACEBOOK_APP_TOKEN } = require('../config');
+const { FACEBOOK_APP_ID, FACEBOOK_APP_TOKEN } = require('../config');
 
 const {TEST_DATABASE_URL} = require('../config');
 const {dbConnect, dbDisconnect} = require('../db-mongoose');
@@ -35,7 +34,7 @@ describe('Mocha and Chai', function() {
 
 describe('User Authentication', function() {
 
-  const testUser = {
+  let testUser = {
     email: 'helloworld@gov.com',
     name: {
       firstName: 'TestUser',

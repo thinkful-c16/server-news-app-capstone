@@ -2,10 +2,10 @@
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const should = chai.should();
 const mongoose = require('mongoose');
 const { app } = require('../index');
 const { User } = require('../users');
+const { Activity } = require('../activity');
 const faker = require('faker');
 const  jwt  = require('jsonwebtoken');
 const { JWT_SECRET, JWT_EXPIRY } = require('../config');
@@ -47,6 +47,7 @@ describe('User Collections Resource', function() {
         password
       }))
       .then(user => {
+        user = user.apiRepr();
         return jwt.sign({user}, JWT_SECRET, {
           subject: user.email,
           expiresIn: JWT_EXPIRY,
@@ -100,8 +101,8 @@ describe('User Collections Resource', function() {
     });
     it('should add an article to a collection', () => {
       let collection;
-    
-      return User.findById(testUser.id)
+
+      return User.findOne({'email': testUser.email})
         .then(user => {
           collection = user.collections[0];
           return chai.request.agent(app)
@@ -118,6 +119,7 @@ describe('User Collections Resource', function() {
           res.body.collectionArticles[0].author.should.equal(awesomeArticle.author);
         });
     });
+
     it('should add an article to the correct collection (if multiple)', () => {
       let firstCollection;
       return chai.request.agent(app)
@@ -125,7 +127,7 @@ describe('User Collections Resource', function() {
         .set('Authorization', `Bearer ${authToken}`)
         .send(mySecondCollection)
         .then(() => {
-          return User.findById(testUser.id)
+          return User.findOne({'email': testUser.email})
             .then(user => {
               firstCollection = user.collections[0];
               return chai.request.agent(app)

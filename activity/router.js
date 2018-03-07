@@ -20,11 +20,11 @@ router.get('/', jwtAuth, (req, res) => {
 
 router.post('/', jwtAuth, (req, res) => {
   let userId = req.user.id;
-  User.findOne(
-    {'_id': userId}
+  User.findById(
+    userId
   )
     .then((user) => {
-      Activity
+      return Activity
         .create({
           owner: userId,
           activityType: activityOptions.SHARE_ARTICLE,
@@ -43,8 +43,7 @@ router.post('/', jwtAuth, (req, res) => {
         .catch(() => {
           res.status(500).json({error: 'something went wrong'});
         });
-    }
-    );
+    }).catch(() => res.status(500).json({error: 'Something went wrong'}));
 });
 
 module.exports = { router };
