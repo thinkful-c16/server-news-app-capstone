@@ -107,7 +107,6 @@ describe('User Activities Resource', function() {
       .set('Authorization', `Bearer ${authToken}`)
       .send(sharedArticle)
       .then(res => {
-        console.log('share article response', res.body)
         res.should.be.json;
         res.status.should.equal(201);
         res.body.activityType.should.equal('share article');
@@ -125,7 +124,7 @@ describe('User Activities Resource', function() {
       .post('/api/collections')
       .set('Authorization', `Bearer ${authToken}`)
       .send(testCollection)
-      .then(res => {
+      .then(() => {
         return Activity.findOne({'activityType': 'new collection', 'data.collectionTitle': testCollection.collectionTitle})
           .then(result => {
             result.activityType.should.equal('new collection');

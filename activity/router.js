@@ -24,7 +24,6 @@ router.post('/', jwtAuth, (req, res) => {
     userId
   )
     .then((user) => {
-      console.log('user in endpoint', user)
       return Activity
         .create({
           owner: userId,
