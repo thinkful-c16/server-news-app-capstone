@@ -148,9 +148,23 @@ describe('User Collections Resource', function() {
         .get('/api/collections')
         .set('Authorization', `Bearer ${authToken}`)
         .then(res => {
-          console.log(res.body)
           res.should.have.status(200);
           res.body.should.be.an('array');
+        });
+    });
+    it('should delete a collection', () => {
+      return User.findOne()
+        .then(user => {
+          return user.collections;
+        }).then(collections => {
+          return collections[0]._id;
+        }).then(collectionId => {
+          return chai.request.agent(app)
+            .delete(`/api/collections/${collectionId}`)
+            .set('Authorization', `Bearer ${authToken}`)
+            .then(res => {
+              res.should.have.status(204);
+            });
         });
     });
   });
