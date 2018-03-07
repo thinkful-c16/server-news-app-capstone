@@ -129,7 +129,6 @@ describe('User Collections Resource', function() {
         .then(() => {
           return User.findOne({'email': testUser.email})
             .then(user => {
-              console.log('MULTIPLE COL', user);
               firstCollection = user.collections[0];
               return chai.request.agent(app)
                 .post(`/api/collections/${user.collections[1].id}`)

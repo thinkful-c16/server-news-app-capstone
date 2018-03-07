@@ -26,7 +26,6 @@ router.get('/', jwtAuth, (req, res) => {
 });
 
 router.get('/:collection', jwtAuth, (req, res) => {
-  console.log('UNDERSCORE USER?', req.user)
   const userId = req.user.id;
   const collectionId = req.params.collection;
   User.findById(userId)
@@ -37,8 +36,6 @@ router.get('/:collection', jwtAuth, (req, res) => {
 });
 
 router.post('/', jwtAuth, (req, res) => {
-  console.log('UNDERSCORE USER?', req.user)
-
   const newCollection = req.body;
   const userId = req.user.id;
   User.findByIdAndUpdate(
@@ -81,12 +78,10 @@ router.post('/:collection', jwtAuth, (req, res) => {
           collectionTitle: foundCollection.collectionTitle,
           articleTitle: article.title
         }
-      }).then((activity) => {
-        console.log('ACTIVITY IN ENDPOINT', activity)
+      }).then(() => {
         res.status(201).location(`/api/collections/${collectionId}`).json(foundCollection);
       });
-    }).catch(err => {
-      console.log(err);
+    }).catch(() => {
       res.status(500).json({message: 'Something went wrong'}
       );
     });
@@ -111,36 +106,29 @@ router.put('/:collections', jwtAuth, (req, res) => {
     }
   });
     
-  console.log('req.params.id', collectionId);
-
   User.findOneAndUpdate(
     {'_id': userId, 'collections._id': collectionId}, 
     {$set: {'collections.$.collectionTitle': updated.collectionTitle}}, 
     {upsert: true, new: true})
-    .then(user => {
-    //   console.log(user);
-      console.log('UPDATED FIELD>>>>', updated);
+    .then(() => {
       res.status(201).json();
     })
-    .catch(err => {
+    .catch(() => {
       res.status(500).json(
-        console.log(err),
         {message: 'Something went wrong!'}
       );
     });
 });
 
 router.delete('/:collection', jwtAuth, (req, res) => {
-  console.log(req.params.collection);
-  console.log(req.user.id);
   User.update(
     {_id: req.user.id},
     { '$pull': { 'collections': { _id: req.params.collection } } }
   )
-    .then(result => {
+    .then(() => {
       res.status(204).send();
     })
-    .catch(err => {
+    .catch(() => {
       res.status(500).json({message: 'Something went wrong and your collection was not deleted'});
     });
 });
@@ -153,10 +141,10 @@ router.delete('/:collection/:article', jwtAuth, (req, res) => {
     {_id : userId, 'collections._id': collectionId},
     { '$pull': { 'collections.$.collectionArticles': { _id : articleId } } }
   )
-    .then(result => {
+    .then(() => {
       res.status(204).send();
     })
-    .catch(err => {
+    .catch(() => {
       res.status(500).json({message: 'Something went wrong and the article was not deleted from your collection'});
     });
 });

@@ -19,7 +19,6 @@ router.get('/', jwtAuth, (req, res) => {
 });
 
 router.post('/', jwtAuth, (req, res) => {
-  console.log(req.body)
   let userId = req.user.id;
   User.findById(
     userId

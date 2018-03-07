@@ -126,8 +126,6 @@ describe('User Activities Resource', function() {
       .then(res => {
         return Activity.findOne({'activityType': 'new collection', 'data.collectionTitle': testCollection.collectionTitle})
           .then(result => {
-            // console.log('IS RES TITLE HERE', res.body);
-            console.log('RESULT', result);
             result.activityType.should.equal('new collection');
             return User.findById(result.owner)
               .then(user => {
@@ -156,7 +154,6 @@ describe('User Activities Resource', function() {
           .then(res => {
             return Activity.findOne({'data.articleTitle': awesomeArticle.title})
               .then(activity => {
-                console.log('ACTIVITY in ADD ARTICLE?', activity);
                 activity.data.articleTitle.should.equal(awesomeArticle.title);
               });
           });
