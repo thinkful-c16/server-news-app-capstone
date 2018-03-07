@@ -94,23 +94,25 @@ describe('User Activities Resource', function() {
     const sharedArticle = {
       owner: _u._id,
       activityType: activityOptions.SHARE_ARTICLE,
-      data: {
-        user: `${_u.name.firstName} ${_u.name.lastName}`,
-        articleTitle: faker.lorem.sentence(),
-        articleImage: faker.internet.url(),
-        articleUrl: faker.internet.url(),
-        articleSource: faker.lorem.sentence()
+      data1: {
+        title: faker.lorem.sentence(),
+        image: faker.internet.url(),
+        url: faker.internet.url(),
+        source: { name: faker.lorem.sentence() } 
       },
-      channel: faker.internet.url()
+      channel: faker.lorem.word() 
     };
     return chai.request.agent(app)
       .post('/api/activities')
       .set('Authorization', `Bearer ${authToken}`)
       .send(sharedArticle)
       .then(res => {
+        console.log('share article response', res.body)
         res.should.be.json;
         res.status.should.equal(201);
         res.body.activityType.should.equal('share article');
+        res.body.data.user.should.be.an('object');
+        res.body.owner.toString().should.equal(_u._id.toString());
       });
   });
 
