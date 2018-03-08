@@ -39,7 +39,7 @@ router.post('/', jsonParser, (req, res ) => {
     });
   }
   const sizedFields = {
-    password: { min: 1, max: 72 }
+    password: { min: 10, max: 72 }
   };
   const tooSmallField = Object.keys(sizedFields).find(field => 'min' in sizedFields[field] && req.body[field].trim().length < sizedFields[field].min);
 
@@ -49,7 +49,7 @@ router.post('/', jsonParser, (req, res ) => {
     return res.status(422).json({
       code: 422,
       reason: 'ValidationError',
-      message: tooSmallField ? `Must be at least ${sizedFields[tooSmallField].min} characters long` :  `Must be at most ${sizedFields[tooLargeField].max} characters long`,
+      message: tooSmallField ? `Password must be at least ${sizedFields[tooSmallField].min} characters long` :  `Must be at most ${sizedFields[tooLargeField].max} characters long`,
       location: tooSmallField || tooLargeField
     });
   }
@@ -62,7 +62,7 @@ router.post('/', jsonParser, (req, res ) => {
         return Promise.reject({
           code: 422,
           reason: 'ValidationError',
-          message: 'Email already exists',
+          message: 'Oops that e-mail already exists! Please log-in.',
           location: 'email'
         });
       }
@@ -82,7 +82,7 @@ router.post('/', jsonParser, (req, res ) => {
       if (err.reason === 'ValidationError') {
         return res.status(err.code).json(err);
       }
-      res.status(500).json({code: 500, message: 'Uh oh, something went wrong with our server'});
+      res.status(500).json({code: 500, message: 'Uh oh, something went wrong with our server. Please try again.'});
     });
 });
 
